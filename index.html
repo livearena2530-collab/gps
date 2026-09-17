@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mini Radar GPS</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-white flex flex-col items-center justify-center min-h-screen font-sans p-4 select-none">
+
+    <div class="w-full max-w-sm bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-2xl flex flex-col items-center">
+        <h1 class="text-2xl font-bold text-emerald-400 mb-2">
+            <i class="fa-solid fa-satellite-dish animate-pulse mr-2"></i> Radar GPS
+        </h1>
+        <p class="text-slate-400 text-sm text-center mb-8">Teste o rastreamento em tempo real do seu dispositivo.</p>
+        
+        <div class="grid grid-cols-2 gap-4 w-full mb-8">
+            <div class="bg-slate-900 p-4 rounded-2xl flex flex-col items-center justify-center border border-slate-700/50">
+                <span class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Distância</span>
+                <span id="display-dist" class="text-3xl font-black text-white">0 <span class="text-base text-slate-400">m</span></span>
+            </div>
+            
+            <div class="bg-slate-900 p-4 rounded-2xl flex flex-col items-center justify-center border border-slate-700/50">
+                <span class="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Velocidade</span>
+                <span id="display-vel" class="text-3xl font-black text-blue-400">0 <span class="text-base text-blue-400/50">km/h</span></span>
+            </div>
+        </div>
+
+        <div class="w-full text-center bg-slate-900/50 rounded-lg p-2 mb-8">
+            <p id="display-coords" class="text-[10px] font-mono text-slate-500">Aguardando sinal GPS...</p>
+        </div>
+
+        <button id="btn-gps" onclick="toggleGPS()" class="w-full py-4 rounded-2xl font-bold text-lg transition-all duration-300 bg-emerald-600 text-white shadow-lg active:scale-95">
+            Iniciar Monitoramento
+        </button>
+    </div>
+
+    <script>
+        let watchId = null;
+        let isTracking = false;
+        let lastLat = null;
+        let lastLon = null;
+        let totalDistance = 0; // em metros
+
+        const btnGps = document.getElementById('btn-gps');
+        const displayDist = document.getElementById('display-dist');
+        const displayVel = document.getElementById('display-vel');
+        const displayCoords = document.getElementById('display-coords');
+
+        function toggleGPS() {
+            if (isTracking) {
+                stopTracking();
+            } else {
+                startTracking();
+            }
+        }
+
+        function startTracking() {
+            if (!("geolocation" in navigator)) {
+                alert("Seu navegador não suporta GPS.");
+                return;
+            }
+
+            btnGps.innerText = "Parar Monitoramento";
+            btnGps.className = "w-full py-4 rounded-2xl font-bold text-lg transition-all duration-300 bg-red-600 text-white shadow-lg active:scale-95";
+            displayCoords.innerText = "Buscando satélites...";
+            isTracking = true;
+
+            // Zera os dados
+            totalDistance = 0;
+            lastLat = null;
+            lastLon = null;
+            updateUI(0, 0);
+
+            // Opções para alta precisão
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            };
+
+            watchId = navigator.geolocation.watchPosition(successCallback, errorCallback, options);
+        }
+
+        function stopTracking() {
+            if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+            isTracking = false;
+            btnGps.innerText = "Iniciar Monitoramento";
+            btnGps.className = "w-full py-4 rounded-2xl font-bold text-lg transition-all duration-300 bg-emerald-600 text-white shadow-lg active:scale-95";
+            displayCoords.innerText = "Monitoramento pausado.";
+            displayVel.innerHTML = `0 <span class="text-base text-blue-400/50">km/h</span>`;
+        }
+
+        function successCallback(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            // A velocidade nativa vem em metros por segundo (m/s). Multiplicamos por 3.6 para km/h.
+            const speed = position.coords.speed ? (position.coords.speed * 3.6) : 0;
+
+            displayCoords.innerText = `Lat: ${lat.toFixed(5)} | Lon: ${lon.toFixed(5)}`;
+
+            if (lastLat !== null && lastLon !== null) {
+                const distance = calculateHaversineDistance(lastLat, lastLon, lat, lon);
+                totalDistance += distance;
+            }
+
+            lastLat = lat;
+            lastLon = lon;
+
+            updateUI(totalDistance, speed);
+        }
+
+        function errorCallback(error) {
+            console.error(error);
+            displayCoords.innerText = "Erro ao ler o GPS. Verifique as permissões.";
+            stopTracking();
+        }
+
+        function updateUI(dist, vel) {
+            displayDist.innerHTML = `${Math.round(dist)} <span class="text-base text-slate-400">m</span>`;
+            displayVel.innerHTML = `${vel.toFixed(1)} <span class="text-base text-blue-400/50">km/h</span>`;
+        }
+
+        // Calcula a distância entre duas coordenadas em metros
+        function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; // Raio da Terra em metros
+            const radLat1 = lat1 * Math.PI/180; // em radianos
+            const radLat2 = lat2 * Math.PI/180;
+            const deltaLat = (lat2-lat1) * Math.PI/180;
+            const deltaLon = (lon2-lon1) * Math.PI/180;
+
+            const a = Math.sin(deltaLat/2) * Math.sin(deltaLat/2) +
+                      Math.cos(radLat1) * Math.cos(radLat2) *
+                      Math.sin(deltaLon/2) * Math.sin(deltaLon/2);
+            
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c; // Distância em metros
+        }
+    </script>
+</body>
+</html>
