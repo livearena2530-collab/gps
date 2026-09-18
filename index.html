@@ -222,7 +222,7 @@
         </section>
 
         <!-- ================= MODO GPS (NOVO!) ================= -->
-        <section id="view-gps" class="absolute inset-0 flex flex-col hidden opacity-0 transition-opacity overflow-hidden pt-16">
+        <section id="view-gps" class="absolute inset-0 flex flex-col hidden opacity-0 transition-opacity overflow-hidden pt-28">
             <!-- Div do Mapa Ocupando o Fundo -->
             <div id="map-container" class="absolute inset-0 z-0 w-full h-full"></div>
             
@@ -230,7 +230,7 @@
             <div class="relative z-10 flex flex-col h-full pointer-events-none">
                 
                 <!-- Tipo de Atividade e Alerta -->
-                <div class="mt-16 mx-4 flex flex-col items-center pointer-events-auto">
+                <div class="mt-2 mx-4 flex flex-col items-center pointer-events-auto">
                     <div id="gps-activity-selector" class="bg-slate-900/80 backdrop-blur-md p-1 rounded-full border border-slate-700 shadow-lg flex gap-1 mb-2">
                         <button onclick="setGpsActivity('Corrida')" id="btn-type-run" class="px-6 py-2 rounded-full bg-theme text-white font-bold text-sm transition-all shadow-md"><i class="fa-solid fa-person-running mr-2"></i>Corrida</button>
                         <button onclick="setGpsActivity('Caminhada')" id="btn-type-walk" class="px-6 py-2 rounded-full text-slate-400 font-bold text-sm transition-all"><i class="fa-solid fa-person-walking mr-2"></i>Caminhada</button>
@@ -462,6 +462,7 @@
         let leafletMap = null;
         let gpsPolyline = null;
         let gpsMarker = null;
+        let gpsStartMarker = null;
         let gpsWatchId = null;
         let gpsActivityType = 'Corrida';
         let gpsPositions = [];
@@ -471,6 +472,11 @@
         let gpsIntervalUi = null;
         let gpsIsRunning = false;
         let gpsIsPaused = false;
+        
+        // Variáveis do Auto-Pause
+        let gpsAutoPaused = false;
+        let gpsLastMoveTime = 0;
+        let gpsAutoPauseChecker = null;
 
         function setGpsActivity(type) {
             if(gpsIsRunning || gpsIsPaused) return; // Não muda no meio do treino
@@ -490,15 +496,15 @@
             // Inicializa o mapa focado no Brasil por padrão se não tiver local
             leafletMap = L.map('map-container', { zoomControl: false }).setView([-15.7801, -47.9292], 13);
             
-            // Camada Google Maps (Com filtro CSS fica no Modo Escuro Nativo)
+            // Camada Google Maps com crossOrigin para permitir Print de Tela
             L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
                 maxZoom: 19,
+                crossOrigin: true,
                 attribution: '© Google Maps'
             }).addTo(leafletMap);
 
-            gpsPolyline = L.polyline([], {color: themeColors[currentTheme].base, weight: 6, lineCap: 'round', lineJoin: 'round'}).addTo(leafletMap);
+            gpsPolyline = L.polyline([], {color: themeColors[currentTheme].base, weight: 8, lineCap: 'round', lineJoin: 'round'}).addTo(leafletMap);
 
-            // Tenta pegar a localização inicial para centralizar
             if ("geolocation" in navigator) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
@@ -515,7 +521,6 @@
 
         function updateGpsMarker(lat, lng) {
             if(!gpsMarker) {
-                // Criar um ícone de "Ponto Atual" customizado
                 const dotIcon = L.divIcon({
                     className: 'custom-gps-marker',
                     html: `<div style="background-color: ${themeColors[currentTheme].base}; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>`,
@@ -527,6 +532,29 @@
                 gpsMarker.setLatLng([lat, lng]);
             }
         }
+        
+        function checkAutoPause() {
+            // Se estiver rodando, não pausado manualmente, e não auto-pausado ainda
+            if (gpsIsRunning && !gpsIsPaused && !gpsAutoPaused) {
+                const timeSinceLastMove = Date.now() - gpsLastMoveTime;
+                
+                // Se ficar 8 segundos sem nenhum movimento válido, ativa o Auto-Pause
+                if (timeSinceLastMove > 8000) {
+                    gpsAutoPaused = true;
+                    clearInterval(gpsIntervalUi);
+                    
+                    speakVoiceCoach("Treino pausado.");
+                    showToast("Auto-Pause: Você parou!");
+                    
+                    const btn = document.getElementById('btn-gps-pause');
+                    if(btn) {
+                        btn.innerHTML = '<i class="fa-solid fa-play"></i>';
+                        btn.classList.replace('bg-amber-500', 'bg-theme');
+                    }
+                    document.getElementById('gps-signal-badge').innerHTML = '<i class="fa-solid fa-hand text-amber-400 animate-pulse"></i> Auto-Pausado';
+                }
+            }
+        }
 
         function startGpsSession() {
             if (!("geolocation" in navigator)) { showToast("GPS não suportado neste aparelho."); return; }
@@ -536,42 +564,60 @@
             document.getElementById('gps-signal-badge').innerHTML = '<i class="fa-solid fa-satellite-dish text-theme"></i> Rastreando...';
             document.getElementById('gps-activity-selector').classList.add('opacity-50', 'pointer-events-none');
 
-            gpsIsRunning = true; gpsIsPaused = false;
+            gpsIsRunning = true; gpsIsPaused = false; gpsAutoPaused = false;
             gpsDistanceKm = 0; gpsPositions = []; gpsElapsedTime = 0;
             gpsPolyline.setLatLngs([]);
+            
+            if(gpsStartMarker) { leafletMap.removeLayer(gpsStartMarker); gpsStartMarker = null; }
             
             requestWakeLock();
             
             // Inicia Timer da UI
             gpsStartTime = Date.now() - gpsElapsedTime;
             gpsIntervalUi = setInterval(updateGpsUiTime, 1000);
+            
+            // Inicia checador de Auto-Pause
+            gpsLastMoveTime = Date.now();
+            if(gpsAutoPauseChecker) clearInterval(gpsAutoPauseChecker);
+            gpsAutoPauseChecker = setInterval(checkAutoPause, 2000);
 
             // Inicia Rastreamento do GPS
             gpsWatchId = navigator.geolocation.watchPosition(
                 handleGpsPosition, 
                 (err) => { document.getElementById('gps-signal-badge').innerHTML = '<i class="fa-solid fa-triangle-exclamation text-red-500"></i> Sinal Fraco'; },
-                { enableHighAccuracy: true, maximumAge: 2000, timeout: 5000 }
+                { enableHighAccuracy: true, maximumAge: 1000, timeout: 5000 }
             );
             
+            speakVoiceCoach(`${gpsActivityType} Iniciada!`);
             showToast(gpsActivityType + " Iniciada!");
         }
 
         function pauseGpsSession() {
             const btn = document.getElementById('btn-gps-pause');
-            if (gpsIsPaused) {
-                // Resume
+            // Se estiver pausado (manualmente ou via auto-pause), retoma o treino
+            if (gpsIsPaused || gpsAutoPaused) {
                 gpsIsPaused = false;
+                gpsAutoPaused = false;
+                gpsLastMoveTime = Date.now(); // Reseta o timer de movimento para não pausar logo em seguida
                 gpsStartTime = Date.now() - gpsElapsedTime;
                 gpsIntervalUi = setInterval(updateGpsUiTime, 1000);
+                
                 btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
                 btn.classList.replace('bg-theme', 'bg-amber-500');
+                document.getElementById('gps-signal-badge').innerHTML = '<i class="fa-solid fa-satellite-dish text-theme"></i> Rastreando...';
+                
+                speakVoiceCoach("Treino retomado.");
                 showToast("Retomado");
             } else {
-                // Pause
+                // Pausa Manualmente
                 gpsIsPaused = true;
                 clearInterval(gpsIntervalUi);
+                
                 btn.innerHTML = '<i class="fa-solid fa-play"></i>';
                 btn.classList.replace('bg-amber-500', 'bg-theme');
+                document.getElementById('gps-signal-badge').innerHTML = '<i class="fa-solid fa-pause text-amber-400"></i> Pausado Manualmente';
+                
+                speakVoiceCoach("Treino pausado.");
                 showToast("Pausado");
             }
         }
@@ -580,25 +626,23 @@
             if(!confirm("Finalizar o treino?")) return;
             
             clearInterval(gpsIntervalUi);
+            if(gpsAutoPauseChecker) clearInterval(gpsAutoPauseChecker);
             if(gpsWatchId) navigator.geolocation.clearWatch(gpsWatchId);
+            
             gpsIsRunning = false;
             releaseWakeLock();
 
-            // Salvar no Histórico
             const durationMin = gpsElapsedTime / 60000;
             saveToHistory(`${gpsActivityType} GPS`, durationMin, gpsDistanceKm);
             
-            // Gerar Card e Mostrar
             showToast("Gerando Resumo...");
             setTimeout(() => shareGpsWorkoutUI(), 500);
 
-            // Resetar UI
             document.getElementById('gps-controls-active').classList.add('hidden');
             document.getElementById('gps-controls-initial').classList.remove('hidden');
             document.getElementById('gps-signal-badge').innerHTML = '<i class="fa-solid fa-satellite-dish text-yellow-400 animate-pulse"></i> Aguardando sinal de GPS...';
             document.getElementById('gps-activity-selector').classList.remove('opacity-50', 'pointer-events-none');
             
-            // Reseta displays
             document.getElementById('gps-time').innerText = "00:00";
             document.getElementById('gps-distance').innerHTML = '0.00 <span class="text-lg text-slate-500">km</span>';
             document.getElementById('gps-pace').innerHTML = '--\'--\" <span class="text-lg text-slate-500">/km</span>';
@@ -606,23 +650,40 @@
         }
 
         function handleGpsPosition(position) {
-            if (gpsIsPaused) return;
+            // Se o usuário pausou manualmente, ignora totalmente as novas posições
+            if (gpsIsPaused) return; 
             
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
-            const accuracy = position.coords.accuracy;
-
-            // Ignorar pontos muito imprecisos (mais de 100 metros de erro) para testes indoor
-            if (accuracy > 100 && gpsPositions.length > 0) return;
-
             const newPoint = L.latLng(lat, lng);
             
             if (gpsPositions.length > 0) {
                 const lastPoint = gpsPositions[gpsPositions.length - 1];
                 const distMeters = lastPoint.distanceTo(newPoint);
                 
-                // Só considera movimento maior que 1.5 metros (mais sensível para testes caseiros)
-                if (distMeters > 1.5) {
+                // Reduzido para 0.5 metros para testar andando pela casa
+                if (distMeters > 0.5) {
+                    
+                    // Detectou Movimento Válido! 
+                    gpsLastMoveTime = Date.now();
+                    
+                    // Se estava Auto-Pausado, retoma automaticamente!
+                    if (gpsAutoPaused) {
+                        gpsAutoPaused = false;
+                        gpsStartTime = Date.now() - gpsElapsedTime;
+                        gpsIntervalUi = setInterval(updateGpsUiTime, 1000);
+                        
+                        speakVoiceCoach("Treino retomado.");
+                        showToast("Movimento detectado: Retomado");
+                        
+                        const btn = document.getElementById('btn-gps-pause');
+                        if(btn) {
+                            btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                            btn.classList.replace('bg-theme', 'bg-amber-500');
+                        }
+                        document.getElementById('gps-signal-badge').innerHTML = '<i class="fa-solid fa-satellite-dish text-theme"></i> Rastreando...';
+                    }
+                    
                     gpsDistanceKm += (distMeters / 1000);
                     gpsPositions.push(newPoint);
                     gpsPolyline.addLatLng(newPoint);
@@ -630,15 +691,21 @@
             } else {
                 gpsPositions.push(newPoint);
                 gpsPolyline.addLatLng(newPoint);
+                
+                const startIcon = L.divIcon({
+                    className: 'start-gps-marker',
+                    html: `<div style="background-color: white; width: 14px; height: 14px; border-radius: 50%; border: 4px solid ${themeColors[currentTheme].base}; box-shadow: 0 0 5px rgba(0,0,0,0.5);"></div>`,
+                    iconSize: [14, 14], iconAnchor: [7, 7]
+                });
+                gpsStartMarker = L.marker([lat, lng], {icon: startIcon}).addTo(leafletMap);
             }
 
-            // Atualiza Marcador e Centraliza Câmera
             updateGpsMarker(lat, lng);
             leafletMap.panTo([lat, lng]);
-
-            // Atualiza UI de Distância
             document.getElementById('gps-distance').innerHTML = `${gpsDistanceKm.toFixed(2)} <span class="text-lg text-slate-500">km</span>`;
-            updateGpsStats();
+            
+            // Só atualiza estatísticas se não estiver auto-pausado
+            if(!gpsAutoPaused) updateGpsStats();
         }
 
         function updateGpsUiTime() {
@@ -651,7 +718,6 @@
             
             document.getElementById('gps-time').innerText = h > 0 ? `${h}:${m}:${s}` : `${m}:${s}`;
             
-            // A cada 5 segundos atualiza as estimativas de Pace e Cadência
             if (totalSeconds % 5 === 0) updateGpsStats();
         }
 
