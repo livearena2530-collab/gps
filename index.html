@@ -74,7 +74,8 @@
         input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; appearance: none; }
 
-        /* Estilo controles do Leaflet */
+        /* Estilo para deixar o mapa escuro (Dark Mode Leaflet) */
+        .leaflet-layer,
         .leaflet-control-zoom-in,
         .leaflet-control-zoom-out,
         .leaflet-control-attribution {
@@ -229,7 +230,7 @@
             <div class="relative z-10 flex flex-col h-full pointer-events-none">
                 
                 <!-- Tipo de Atividade e Alerta -->
-                <div class="mt-4 mx-4 flex flex-col items-center pointer-events-auto">
+                <div class="mt-16 mx-4 flex flex-col items-center pointer-events-auto">
                     <div id="gps-activity-selector" class="bg-slate-900/80 backdrop-blur-md p-1 rounded-full border border-slate-700 shadow-lg flex gap-1 mb-2">
                         <button onclick="setGpsActivity('Corrida')" id="btn-type-run" class="px-6 py-2 rounded-full bg-theme text-white font-bold text-sm transition-all shadow-md"><i class="fa-solid fa-person-running mr-2"></i>Corrida</button>
                         <button onclick="setGpsActivity('Caminhada')" id="btn-type-walk" class="px-6 py-2 rounded-full text-slate-400 font-bold text-sm transition-all"><i class="fa-solid fa-person-walking mr-2"></i>Caminhada</button>
@@ -489,10 +490,10 @@
             // Inicializa o mapa focado no Brasil por padrão se não tiver local
             leafletMap = L.map('map-container', { zoomControl: false }).setView([-15.7801, -47.9292], 13);
             
-            // Camada CartoDB Dark Matter (Permissiva e já em Dark Mode)
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            // Camada Google Maps (Com filtro CSS fica no Modo Escuro Nativo)
+            L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
                 maxZoom: 19,
-                attribution: '© OpenStreetMap, © CARTO'
+                attribution: '© Google Maps'
             }).addTo(leafletMap);
 
             gpsPolyline = L.polyline([], {color: themeColors[currentTheme].base, weight: 6, lineCap: 'round', lineJoin: 'round'}).addTo(leafletMap);
@@ -611,8 +612,8 @@
             const lng = position.coords.longitude;
             const accuracy = position.coords.accuracy;
 
-            // Ignorar pontos muito imprecisos (mais de 20 metros de erro)
-            if (accuracy > 20 && gpsPositions.length > 0) return;
+            // Ignorar pontos muito imprecisos (mais de 100 metros de erro) para testes indoor
+            if (accuracy > 100 && gpsPositions.length > 0) return;
 
             const newPoint = L.latLng(lat, lng);
             
@@ -620,8 +621,8 @@
                 const lastPoint = gpsPositions[gpsPositions.length - 1];
                 const distMeters = lastPoint.distanceTo(newPoint);
                 
-                // Só considera movimento maior que 2 metros para evitar "pulos" do GPS
-                if (distMeters > 2) {
+                // Só considera movimento maior que 1.5 metros (mais sensível para testes caseiros)
+                if (distMeters > 1.5) {
                     gpsDistanceKm += (distMeters / 1000);
                     gpsPositions.push(newPoint);
                     gpsPolyline.addLatLng(newPoint);
