@@ -152,8 +152,8 @@
                 <div class="flex items-center gap-1 text-orange-400 font-bold text-sm bg-orange-400/10 px-3 py-1 rounded-full border border-orange-400/20 shadow-lg"><i class="fa-solid fa-fire"></i> <span id="hist-streak">0 Dias</span></div>
             </div>
             
-            <!-- Botão de Login Inteligente -->
-            <button id="btn-login" class="w-full py-4 mb-6 bg-slate-800 text-white font-bold rounded-2xl border border-blue-500/50 shadow-lg flex items-center justify-center gap-3 hover:bg-slate-700 transition">
+            <!-- Botão Dinâmico de Login (Muda de cor e ação via JS) -->
+            <button id="btn-login" onclick="window.firebaseLogin && window.firebaseLogin()" class="w-full py-4 mb-6 bg-slate-800 text-white font-bold rounded-2xl border border-blue-500/50 shadow-lg flex items-center justify-center gap-3 hover:bg-slate-700 transition">
                 <i class="fa-brands fa-google text-blue-400 text-xl"></i> Conectar Nuvem
             </button>
             
@@ -165,7 +165,7 @@
             <div class="w-full mb-10"><h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left"></i> Últimas Atividades</h3><ul id="history-list" class="space-y-2 w-full"></ul></div>
         </section>
 
-        <!-- ================= MODAIS ESCONDIDOS ================= -->
+        <!-- MODAIS ESCONDIDOS -->
         <div id="share-card-container" class="fixed -left-[2000px] top-0 pointer-events-none">
             <div id="share-card" class="w-[600px] h-[800px] bg-slate-900 flex flex-col justify-between items-center p-12 rounded-3xl border-8 border-theme">
                 <div class="text-center mt-10"><h1 class="text-6xl font-black text-theme mb-2"><i class="fa-solid fa-bolt"></i> FitTimer Pro</h1><p class="text-2xl text-slate-400 font-semibold tracking-widest uppercase">Treino Concluído!</p></div>
@@ -196,8 +196,9 @@
                 <div class="flex justify-between items-center mb-5"><h2 class="text-xl font-black text-white"><i class="fa-solid fa-sliders mr-2"></i> Configurações</h2><button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white text-2xl"><i class="fa-solid fa-xmark"></i></button></div>
                 <div class="mb-4"><label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Cor do Aplicativo</label><div class="flex justify-between gap-2"><button onclick="setTheme('emerald')" class="w-10 h-10 rounded-full bg-emerald-500 border-2 border-transparent focus:border-white transition shadow-lg"></button><button onclick="setTheme('cyan')" class="w-10 h-10 rounded-full bg-cyan-500 border-2 border-transparent focus:border-white transition shadow-lg"></button><button onclick="setTheme('orange')" class="w-10 h-10 rounded-full bg-orange-500 border-2 border-transparent focus:border-white transition shadow-lg"></button><button onclick="setTheme('purple')" class="w-10 h-10 rounded-full bg-purple-500 border-2 border-transparent focus:border-white transition shadow-lg"></button></div></div>
                 <div class="mb-4">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-blue-400"></i> API do Gemini (IA)</label>
-                    <input type="password" id="input-gemini-key" placeholder="Sua chave (Opcional)" class="w-full bg-slate-900 text-white px-3 py-2 rounded-xl outline-none border border-slate-700 focus:border-blue-500 text-sm transition-all mb-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-blue-400"></i> API do Gemini (Treinador IA)</label>
+                    <input type="password" id="input-gemini-key" placeholder="Cole sua chave aqui (Opcional)" class="w-full bg-slate-900 text-white px-3 py-2 rounded-xl outline-none border border-slate-700 focus:border-blue-500 text-sm transition-all mb-1">
+                    <p class="text-[9px] text-slate-500">Deixe em branco para usar o cérebro offline.</p>
                 </div>
                 <div class="mb-4">
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Voz e Áudio</label>
@@ -210,9 +211,10 @@
 
         <div id="modal-gemini" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
             <div class="bg-slate-800 p-6 rounded-3xl w-full max-w-sm border border-blue-500/50 shadow-[0_0_30px_rgba(59,130,246,0.2)] transform scale-95 transition-transform duration-300 relative overflow-hidden" id="modal-gemini-content">
-                <div class="flex items-center gap-3 mb-4 relative z-10"><div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-xl border border-blue-500/30"><i class="fa-solid fa-wand-magic-sparkles"></i></div><div><h3 class="text-white text-lg font-black leading-tight">Treinador IA</h3><p class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">Inteligência Artificial</p></div></div>
+                <div class="absolute -top-20 -right-20 w-40 h-40 bg-blue-500/20 blur-[50px] rounded-full pointer-events-none"></div>
+                <div class="flex items-center gap-3 mb-4 relative z-10"><div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-xl border border-blue-500/30"><i class="fa-solid fa-wand-magic-sparkles"></i></div><div><h3 class="text-white text-lg font-black leading-tight">Treinador Gemini</h3><p class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">Inteligência Artificial</p></div></div>
                 <p class="text-slate-300 text-sm mb-4 relative z-10">Diga seu objetivo e tempo disponível. Eu calculo e monto o timer para você.</p>
-                <textarea id="input-gemini-prompt" rows="3" placeholder="Ex: Treino intenso de perna de 15 minutos." class="w-full bg-slate-900 text-white p-4 rounded-xl outline-none border border-slate-700 focus:border-blue-500 text-sm transition-all mb-4 resize-none relative z-10"></textarea>
+                <textarea id="input-gemini-prompt" rows="3" placeholder="Ex: Treino super intenso de perna de 15 minutos." class="w-full bg-slate-900 text-white p-4 rounded-xl outline-none border border-slate-700 focus:border-blue-500 text-sm transition-all mb-4 resize-none relative z-10"></textarea>
                 <div class="flex justify-end gap-3 w-full relative z-10"><button onclick="closeGeminiModal()" class="flex-1 py-3 text-slate-300 bg-slate-700 rounded-xl font-bold hover:bg-slate-600 transition">Cancelar</button><button id="btn-generate-ai" onclick="generateAIWorkout()" class="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold shadow-[0_4px_15px_rgba(37,99,235,0.4)] transition flex justify-center items-center gap-2"><span>Gerar</span> <i class="fa-solid fa-bolt"></i></button></div>
             </div>
         </div>
@@ -226,7 +228,6 @@
         <button onclick="switchTab('history')" id="tab-history" class="nav-btn flex flex-col items-center justify-center w-16 py-2 text-slate-500 hover:text-slate-300 transition-colors"><i class="fa-solid fa-chart-simple text-xl mb-1"></i><span class="text-[9px] font-bold tracking-wider">PERFIL</span></button>
     </nav>
 
-    <!-- ================= LÓGICA E UI DO APLICATIVO ================= -->
     <script>
         window.triggerCloudSync = () => {}; 
         let currentView = 'stopwatch', isSoundOn = true, isVoiceOn = JSON.parse(localStorage.getItem('fittimer_voice')) !== false, wakeLock = null, currentTheme = localStorage.getItem('fittimer_theme') || 'emerald', selectedSound = localStorage.getItem('fittimer_sound') || 'beep';
@@ -237,7 +238,8 @@
             document.documentElement.style.setProperty('--theme-light', colors.light); document.documentElement.style.setProperty('--theme-base', colors.base); document.documentElement.style.setProperty('--theme-dark', colors.dark);
             document.querySelectorAll('.indicator-sound').forEach(el => el.classList.add('hidden')); document.querySelectorAll('#modal-settings-content button[id^="btn-sound"]').forEach(el => el.classList.replace('border-theme', 'border-transparent'));
             const activeSoundBtn = document.getElementById(`btn-sound-${selectedSound}`); if(activeSoundBtn) { activeSoundBtn.classList.replace('border-transparent', 'border-theme'); activeSoundBtn.querySelector('.indicator-sound').classList.remove('hidden'); }
-            updateVoiceUI(); document.getElementById('input-gemini-key').value = localStorage.getItem('fittimer_gemini_key') || '';
+            updateVoiceUI();
+            document.getElementById('input-gemini-key').value = localStorage.getItem('fittimer_gemini_key') || '';
         }
 
         function setTheme(theme) { currentTheme = theme; localStorage.setItem('fittimer_theme', theme); applyThemeSettings(); window.triggerCloudSync(); }
@@ -246,15 +248,9 @@
         function updateVoiceUI() { const dot = document.getElementById('toggle-voice-btn'); if (isVoiceOn) { dot.classList.replace('translate-x-0', 'translate-x-6'); dot.classList.replace('bg-slate-500', 'bg-theme'); } else { dot.classList.replace('translate-x-6', 'translate-x-0'); dot.classList.replace('bg-theme', 'bg-slate-500'); } }
 
         function openSettingsModal() { const m = document.getElementById('modal-settings'); const c = document.getElementById('modal-settings-content'); m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); c.classList.remove('scale-95'); }
-        function closeSettingsModal() { localStorage.setItem('fittimer_gemini_key', document.getElementById('input-gemini-key').value.trim()); window.triggerCloudSync(); const m = document.getElementById('modal-settings'); const c = document.getElementById('modal-settings-content'); m.classList.add('opacity-0'); c.classList.add('scale-95'); setTimeout(() => m.classList.add('hidden'), 300); }
-
-        function showSystemToast(text, isError = false) {
-            const toast = document.getElementById('toast-medal');
-            document.getElementById('toast-title').innerText = isError ? "Atenção" : "Sistema";
-            document.getElementById('toast-icon').className = isError ? "fa-solid fa-triangle-exclamation" : "fa-solid fa-info-circle";
-            document.getElementById('toast-medal-name').innerText = text;
-            toast.classList.remove('-translate-y-[150%]', 'opacity-0');
-            setTimeout(() => toast.classList.add('-translate-y-[150%]', 'opacity-0'), 4000);
+        function closeSettingsModal() { 
+            localStorage.setItem('fittimer_gemini_key', document.getElementById('input-gemini-key').value.trim()); window.triggerCloudSync();
+            const m = document.getElementById('modal-settings'); const c = document.getElementById('modal-settings-content'); m.classList.add('opacity-0'); c.classList.add('scale-95'); setTimeout(() => m.classList.add('hidden'), 300); 
         }
 
         // ================= IA GEMINI =================
@@ -284,11 +280,12 @@
             document.getElementById('int-work-m').value = (d.workM||0).toString().padStart(2, '0'); document.getElementById('int-work-s').value = (d.workS||0).toString().padStart(2, '0');
             document.getElementById('int-rest-m').value = (d.restM||0).toString().padStart(2, '0'); document.getElementById('int-rest-s').value = (d.restS||0).toString().padStart(2, '0');
             document.getElementById('int-warm-m').value = (d.warmM||0).toString().padStart(2, '0'); document.getElementById('int-warm-s').value = (d.warmS||0).toString().padStart(2, '0');
-            document.getElementById('int-input-rounds').value = d.rounds || 1; currentActivePresetId = null; renderPresets();
+            document.getElementById('int-input-rounds').value = d.rounds || 1;
+            currentActivePresetId = null; localStorage.removeItem('fittimer_active_hiit_preset'); renderPresets(); saveLastConfigOffline();
             document.getElementById('int-status').innerText = "IA GEMINI PRONTA ✨"; document.getElementById('int-status').className = "text-lg sm:text-xl font-black uppercase tracking-widest text-blue-400";
         }
 
-        // ================= ÁUDIO & SISTEMA GERAL =================
+        // ================= ÁUDIO E WAKE LOCK =================
         async function requestWakeLock() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {} }
         function releaseWakeLock() { if (wakeLock !== null) wakeLock.release().then(() => wakeLock = null); }
         function toggleSound() { isSoundOn = !isSoundOn; const icon = document.getElementById('icon-sound'); if (isSoundOn) { icon.className = 'fa-solid fa-volume-high'; document.getElementById('btn-sound').classList.remove('text-red-400', 'opacity-50'); } else { icon.className = 'fa-solid fa-volume-xmark'; document.getElementById('btn-sound').classList.add('text-red-400', 'opacity-50'); } }
@@ -300,11 +297,18 @@
         function vibrateDevice(type) { try { if (type === 'short') navigator.vibrate(100); else if (type === 'long') navigator.vibrate(400); else if (type === 'end') navigator.vibrate([400, 200, 400]); } catch(e) {} }
         function speakVoiceCoach(text) { if (!isSoundOn || !isVoiceOn) return; if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'pt-BR'; utterance.rate = 1.3; window.speechSynthesis.speak(utterance); } }
 
+        function showSystemToast(text, isError = false) {
+            const toast = document.getElementById('toast-medal'); document.getElementById('toast-title').innerText = isError ? "Atenção" : "Sistema";
+            document.getElementById('toast-icon').className = isError ? "fa-solid fa-triangle-exclamation" : "fa-solid fa-info-circle";
+            document.getElementById('toast-medal-name').innerText = text;
+            toast.classList.remove('-translate-y-[150%]', 'opacity-0'); setTimeout(() => toast.classList.add('-translate-y-[150%]', 'opacity-0'), 4000);
+        }
+
+        // ================= HISTÓRICO & GAMIFICAÇÃO =================
         let appHistory = JSON.parse(localStorage.getItem('fittimer_history')) || []; let badgesData = JSON.parse(localStorage.getItem('fittimer_badges')) || {}; let currentStreak = 0;
         const allBadges = [ { id: 'b_first', icon: 'fa-star', name: 'Iniciante', desc: '1º Treino' }, { id: 'b_10', icon: 'fa-medal', name: 'Atleta', desc: '10 Treinos' }, { id: 'b_100', icon: 'fa-shield-halved', name: 'Centurião', desc: '100 Treinos' }, { id: 'b_streak7', icon: 'fa-fire-flame-curved', name: 'Foco Total', desc: '7 Dias Seguidos' }, { id: 'b_early', icon: 'fa-sun', name: 'Madrugador', desc: 'Treinou 04h-07h' }, { id: 'b_night', icon: 'fa-moon', name: 'Coruja', desc: 'Treinou 22h-03h' } ];
         
-        function checkBadges(dateStr) { const date = new Date(dateStr); const hour = date.getHours(); let newUnlock = null; if(!badgesData.b_first && appHistory.length >= 1) { badgesData.b_first = true; newUnlock = 'b_first'; } if(!badgesData.b_10 && appHistory.length >= 10) { badgesData.b_10 = true; newUnlock = 'b_10'; } if(!badgesData.b_100 && appHistory.length >= 100) { badgesData.b_100 = true; newUnlock = 'b_100'; } if(!badgesData.b_streak7 && currentStreak >= 7) { badgesData.b_streak7 = true; newUnlock = 'b_streak7'; } if(!badgesData.b_early && hour >= 4 && hour <= 7) { badgesData.b_early = true; newUnlock = 'b_early'; } if(!badgesData.b_night && (hour >= 22 || hour <= 3)) { badgesData.b_night = true; newUnlock = 'b_night'; } if(newUnlock) { localStorage.setItem('fittimer_badges', JSON.stringify(badgesData)); renderBadges(); const bInfo = allBadges.find(b => b.id === newUnlock); if(bInfo) showToastMedal(bInfo.name); } }
-        function showToastMedal(name) { document.getElementById('toast-title').innerText = "Nova Conquista!"; document.getElementById('toast-icon').className = "fa-solid fa-award"; document.getElementById('toast-medal-name').innerText = name; const toast = document.getElementById('toast-medal'); toast.classList.remove('-translate-y-[150%]', 'opacity-0'); if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.2 }, zIndex: 1000 }); setTimeout(() => { toast.classList.add('-translate-y-[150%]', 'opacity-0'); }, 4000); }
+        function checkBadges(dateStr) { const date = new Date(dateStr); const hour = date.getHours(); let newUnlock = null; if(!badgesData.b_first && appHistory.length >= 1) { badgesData.b_first = true; newUnlock = 'b_first'; } if(!badgesData.b_10 && appHistory.length >= 10) { badgesData.b_10 = true; newUnlock = 'b_10'; } if(!badgesData.b_100 && appHistory.length >= 100) { badgesData.b_100 = true; newUnlock = 'b_100'; } if(!badgesData.b_streak7 && currentStreak >= 7) { badgesData.b_streak7 = true; newUnlock = 'b_streak7'; } if(!badgesData.b_early && hour >= 4 && hour <= 7) { badgesData.b_early = true; newUnlock = 'b_early'; } if(!badgesData.b_night && (hour >= 22 || hour <= 3)) { badgesData.b_night = true; newUnlock = 'b_night'; } if(newUnlock) { localStorage.setItem('fittimer_badges', JSON.stringify(badgesData)); renderBadges(); const bInfo = allBadges.find(b => b.id === newUnlock); if(bInfo) { document.getElementById('toast-title').innerText = "Nova Conquista!"; document.getElementById('toast-icon').className = "fa-solid fa-award"; document.getElementById('toast-medal-name').innerText = bInfo.name; const toast = document.getElementById('toast-medal'); toast.classList.remove('-translate-y-[150%]', 'opacity-0'); if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.2 }, zIndex: 1000 }); setTimeout(() => { toast.classList.add('-translate-y-[150%]', 'opacity-0'); }, 4000); } } }
         function renderBadges() { const container = document.getElementById('badges-container'); container.innerHTML = ''; allBadges.forEach(b => { const unlocked = badgesData[b.id]; const bg = unlocked ? 'bg-theme/20 border-theme' : 'bg-slate-800 border-slate-700 opacity-50 grayscale'; const iconColor = unlocked ? 'text-theme' : 'text-slate-500'; container.innerHTML += `<div class="flex flex-col items-center text-center p-2 rounded-xl border ${bg} transition-all"><i class="fa-solid ${b.icon} ${iconColor} text-2xl mb-1 drop-shadow-md"></i><span class="text-[9px] font-bold text-white uppercase">${b.name}</span><span class="text-[8px] text-slate-400">${b.desc}</span></div>`; }); }
         function saveToHistory(type, minutes) { const entry = { id: Date.now(), date: new Date().toISOString(), type: type, duration: minutes }; appHistory.unshift(entry); if(appHistory.length > 100) appHistory.pop(); localStorage.setItem('fittimer_history', JSON.stringify(appHistory)); renderHistory(); checkBadges(entry.date); window.triggerCloudSync(); }
         
@@ -318,6 +322,7 @@
             appHistory.slice(0, 15).forEach(h => { const date = new Date(h.date); const dateStr = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' às ' + date.getHours() + 'h' + date.getMinutes().toString().padStart(2,'0'); const li = document.createElement('li'); li.className = 'bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 flex justify-between items-center'; li.innerHTML = `<div class="flex flex-col"><span class="text-white font-bold">${h.type}</span><span class="text-[9px] text-slate-400 uppercase tracking-widest">${dateStr}</span></div><div class="flex items-center gap-3"><span class="text-theme font-bold bg-theme/10 px-3 py-1 rounded-lg text-xs">${formatTimeSimple(h.duration*60)}</span><button onclick="shareWorkoutUI('${h.type}', ${h.duration})" class="text-slate-400 hover:text-white transition p-1"><i class="fa-solid fa-share-nodes"></i></button></div>`; list.appendChild(li); });
         }
 
+        // ================= PRESETS E CONFIGURAÇÕES OFFLINE =================
         function formatTimeSimple(totalSeconds) { let m = Math.floor(totalSeconds / 60).toString().padStart(2, '0'); let s = (totalSeconds % 60).toString().padStart(2, '0'); return `${m}:${s}`; }
         function updateSvgRing(ringId, timeRemaining, totalTime) { const ring = document.getElementById(ringId); if(ring && totalTime > 0) ring.style.strokeDashoffset = 100 - ((timeRemaining / totalTime) * 100); }
         function switchTab(tab) {
@@ -326,9 +331,34 @@
             currentView = tab; if (tab !== 'interval' && !intIsRunning) document.getElementById('app-body').className = 'flex flex-col h-[100dvh] w-full transition-colors duration-500 bg-slate-900'; else if (tab === 'interval') updateIntBgColor();
         }
 
-        let currentPresetMode = 'hiit'; let currentEditPresetId = null; let selectedOptionsPresetId = null; let pressTimer; let isLongPress = false; let currentActivePresetId = null;
+        let currentPresetMode = 'hiit'; let currentEditPresetId = null; let selectedOptionsPresetId = null; let pressTimer; let isLongPress = false; 
+        
+        let currentActivePresetId = localStorage.getItem('fittimer_active_hiit_preset') || null;
         let myPresets = JSON.parse(localStorage.getItem('fittimer_customPresets')) || [{ id: 'def1', name: 'Tabata', workM:0, workS:20, restM:0, restS:10, rounds:8, warmM:0, warmS:10 }, { id: 'def2', name: 'Boxe', workM:3, workS:0, restM:1, restS:0, rounds:5, warmM:1, warmS:0 }];
         let myTimerPresets = JSON.parse(localStorage.getItem('fittimer_timerPresets')) || [{ id: 't_def1', name: 'Ovo Cozido', totalSec: 420 }, { id: 't_def2', name: 'Descanso 90s', totalSec: 90 }, { id: 't_def3', name: 'Prancha', totalSec: 120 }];
+
+        function saveLastConfigOffline() {
+            const config = { workM: parseInt(document.getElementById('int-work-m').value)||0, workS: parseInt(document.getElementById('int-work-s').value)||0, restM: parseInt(document.getElementById('int-rest-m').value)||0, restS: parseInt(document.getElementById('int-rest-s').value)||0, rounds: document.getElementById('int-input-rounds').value, warmM: parseInt(document.getElementById('int-warm-m').value)||0, warmS: parseInt(document.getElementById('int-warm-s').value)||0 };
+            localStorage.setItem('fittimer_lastConfig', JSON.stringify(config));
+        }
+
+        function loadLastConfigOffline() {
+            if(currentActivePresetId) {
+                const p = myPresets.find(x => x.id === currentActivePresetId);
+                if(p) { setHiitPreset(p); return; }
+            }
+            const saved = localStorage.getItem('fittimer_lastConfig');
+            if(saved) {
+                const config = JSON.parse(saved);
+                if(config.workM !== undefined) document.getElementById('int-work-m').value = config.workM.toString().padStart(2, '0');
+                if(config.workS !== undefined) document.getElementById('int-work-s').value = config.workS.toString().padStart(2, '0');
+                if(config.restM !== undefined) document.getElementById('int-rest-m').value = config.restM.toString().padStart(2, '0');
+                if(config.restS !== undefined) document.getElementById('int-rest-s').value = config.restS.toString().padStart(2, '0');
+                if(config.rounds !== undefined) document.getElementById('int-input-rounds').value = config.rounds;
+                if(config.warmM !== undefined) document.getElementById('int-warm-m').value = config.warmM.toString().padStart(2, '0');
+                if(config.warmS !== undefined) document.getElementById('int-warm-s').value = config.warmS.toString().padStart(2, '0');
+            }
+        }
 
         function renderPresets() {
             const container = document.getElementById('int-presets'); container.innerHTML = '';
@@ -336,7 +366,7 @@
                 const isActive = (p.id === currentActivePresetId && currentPresetMode === 'hiit'); const btn = document.createElement('button'); btn.className = isActive ? 'py-2 px-4 bg-theme text-white text-sm font-bold rounded-lg shadow-lg scale-105 transition-all shrink-0 snap-center' : 'py-2 px-4 bg-slate-800 text-slate-300 text-sm font-bold rounded-lg border border-slate-700 active:bg-slate-700 transition-all shrink-0 snap-center'; btn.innerText = p.name;
                 const startPress = () => { isLongPress = false; pressTimer = setTimeout(() => { isLongPress = true; if(navigator.vibrate) navigator.vibrate(50); currentPresetMode = 'hiit'; openOptionsModal(p.id, p.name); }, 500); }; const cancelPress = () => clearTimeout(pressTimer);
                 btn.addEventListener('touchstart', startPress, {passive: true}); btn.addEventListener('touchend', cancelPress); btn.addEventListener('touchmove', cancelPress); btn.addEventListener('mousedown', startPress); btn.addEventListener('mouseup', cancelPress); btn.addEventListener('mouseleave', cancelPress);
-                btn.onclick = (e) => { e.preventDefault(); if (!isLongPress) { currentPresetMode = 'hiit'; currentActivePresetId = p.id; setHiitPreset(p); renderPresets(); } }; container.appendChild(btn);
+                btn.onclick = (e) => { e.preventDefault(); if (!isLongPress) { currentPresetMode = 'hiit'; currentActivePresetId = p.id; localStorage.setItem('fittimer_active_hiit_preset', p.id); setHiitPreset(p); renderPresets(); document.getElementById('int-status').innerText = "CONFIGURAÇÃO"; document.getElementById('int-status').className = "text-lg sm:text-xl font-bold uppercase tracking-widest text-slate-400"; } }; container.appendChild(btn);
             });
             const addAIBtn = document.createElement('button'); addAIBtn.onclick = openGeminiModal; addAIBtn.className = 'py-2 px-4 bg-slate-800/50 text-blue-400 text-sm font-bold rounded-lg border border-blue-500/50 active:bg-blue-600 active:text-white transition shrink-0 snap-center flex items-center gap-2'; addAIBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Treinador IA ✨'; container.appendChild(addAIBtn);
             const addBtn = document.createElement('button'); addBtn.onclick = () => { currentPresetMode = 'hiit'; openModalPreset(); }; addBtn.className = 'py-2 px-4 bg-slate-800/50 text-theme text-sm font-bold rounded-lg border border-theme/50 active:bg-theme active:text-white transition shrink-0 snap-center flex items-center gap-2'; addBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Novo'; container.appendChild(addBtn);
@@ -368,32 +398,26 @@
             const input = document.getElementById('input-preset-name'); const name = input.value.trim(); if(!name) { input.classList.add('border-red-500', 'animate-pulse'); setTimeout(() => input.classList.remove('border-red-500', 'animate-pulse'), 1000); return; }
             const list = currentPresetMode === 'hiit' ? myPresets : myTimerPresets; const storageKey = currentPresetMode === 'hiit' ? 'fittimer_customPresets' : 'fittimer_timerPresets';
             if (currentEditPresetId) { const preset = list.find(p => p.id === currentEditPresetId); if (preset) preset.name = name; } 
-            else { const newId = (currentPresetMode === 'hiit' ? 'p_' : 't_') + Date.now(); if(currentPresetMode === 'hiit') { list.push({ id: newId, name: name, workM: parseInt(document.getElementById('int-work-m').value)||0, workS: parseInt(document.getElementById('int-work-s').value)||0, restM: parseInt(document.getElementById('int-rest-m').value)||0, restS: parseInt(document.getElementById('int-rest-s').value)||0, rounds: parseInt(document.getElementById('int-input-rounds').value)||0, warmM: parseInt(document.getElementById('int-warm-m').value)||0, warmS: parseInt(document.getElementById('int-warm-s').value)||0 }); } else { const m = parseInt(document.getElementById('tm-input-min').value)||0; const s = parseInt(document.getElementById('tm-input-sec').value)||0; list.push({ id: newId, name: name, totalSec: (m*60)+s }); } currentActivePresetId = newId; }
+            else { const newId = (currentPresetMode === 'hiit' ? 'p_' : 't_') + Date.now(); if(currentPresetMode === 'hiit') { list.push({ id: newId, name: name, workM: parseInt(document.getElementById('int-work-m').value)||0, workS: parseInt(document.getElementById('int-work-s').value)||0, restM: parseInt(document.getElementById('int-rest-m').value)||0, restS: parseInt(document.getElementById('int-rest-s').value)||0, rounds: parseInt(document.getElementById('int-input-rounds').value)||0, warmM: parseInt(document.getElementById('int-warm-m').value)||0, warmS: parseInt(document.getElementById('int-warm-s').value)||0 }); } else { const m = parseInt(document.getElementById('tm-input-min').value)||0; const s = parseInt(document.getElementById('tm-input-sec').value)||0; list.push({ id: newId, name: name, totalSec: (m*60)+s }); } currentActivePresetId = newId; if(currentPresetMode === 'hiit') localStorage.setItem('fittimer_active_hiit_preset', newId); }
             localStorage.setItem(storageKey, JSON.stringify(list)); closeModalPreset(); window.triggerCloudSync(); if(currentPresetMode === 'hiit') renderPresets(); else renderTimerPresets();
         }
         function deletePreset(id) { if(currentPresetMode === 'hiit') { myPresets = myPresets.filter(p => p.id !== id); localStorage.setItem('fittimer_customPresets', JSON.stringify(myPresets)); renderPresets(); } else { myTimerPresets = myTimerPresets.filter(p => p.id !== id); localStorage.setItem('fittimer_timerPresets', JSON.stringify(myTimerPresets)); renderTimerPresets(); } window.triggerCloudSync(); }
 
+        // ================= TIMER LOGIC =================
         let tmTotalSeconds = 0, tmTimeRemaining = 0, tmInterval = null, tmIsRunning = false;
         function setTimerPreset(p) { const m = Math.floor(p.totalSec / 60); const s = p.totalSec % 60; document.getElementById('tm-input-min').value = m; document.getElementById('tm-input-sec').value = s; updateTmDisplayFromInputs(); }
-        function updateTmDisplayFromInputs() { 
-            if(!tmIsRunning) { 
-                tmTotalSeconds = ((parseInt(document.getElementById('tm-input-min').value) || 0) * 60) + (parseInt(document.getElementById('tm-input-sec').value) || 0); 
-                tmTimeRemaining = tmTotalSeconds; 
-                document.getElementById('tm-display').innerHTML = formatTimeSimple(tmTimeRemaining); 
-                updateSvgRing('tm-progress-ring', tmTimeRemaining, tmTotalSeconds); 
-                
-                // === AUTO-SAVE TIMER ===
-                if (currentActivePresetId && currentPresetMode === 'timer') {
-                    const pIndex = myTimerPresets.findIndex(p => p.id === currentActivePresetId);
-                    if (pIndex > -1) {
-                        myTimerPresets[pIndex].totalSec = tmTotalSeconds;
-                        localStorage.setItem('fittimer_timerPresets', JSON.stringify(myTimerPresets));
-                        window.triggerCloudSync();
-                    }
+        function updateTmDisplayFromInputs() { if(!tmIsRunning) { tmTotalSeconds = ((parseInt(document.getElementById('tm-input-min').value) || 0) * 60) + (parseInt(document.getElementById('tm-input-sec').value) || 0); tmTimeRemaining = tmTotalSeconds; document.getElementById('tm-display').innerHTML = formatTimeSimple(tmTimeRemaining); updateSvgRing('tm-progress-ring', tmTimeRemaining, tmTotalSeconds); } }
+        ['tm-input-min', 'tm-input-sec'].forEach(id => document.getElementById(id).addEventListener('input', () => { 
+            updateTmDisplayFromInputs(); 
+            if(currentActivePresetId && currentPresetMode === 'timer') {
+                const pIndex = myTimerPresets.findIndex(p => p.id === currentActivePresetId);
+                if (pIndex > -1) {
+                    myTimerPresets[pIndex].totalSec = tmTotalSeconds;
+                    localStorage.setItem('fittimer_timerPresets', JSON.stringify(myTimerPresets));
+                    window.triggerCloudSync();
                 }
-            } 
-        }
-        ['tm-input-min', 'tm-input-sec'].forEach(id => document.getElementById(id).addEventListener('input', updateTmDisplayFromInputs));
+            } else { currentActivePresetId = null; renderTimerPresets(); }
+        }));
         function tmStartPause() {
             if (tmIsRunning) { clearInterval(tmInterval); tmIsRunning = false; releaseWakeLock(); document.getElementById('tm-btn-start-pause').classList.replace('bg-amber-600', 'bg-theme'); document.getElementById('tm-icon-start-pause').classList.replace('fa-pause', 'fa-play'); } 
             else { if(!tmIsRunning && tmTimeRemaining === tmTotalSeconds) tmTotalSeconds = ((parseInt(document.getElementById('tm-input-min').value) || 0) * 60) + (parseInt(document.getElementById('tm-input-sec').value) || 0); if(tmTotalSeconds === 0) return; document.getElementById('tm-setup').style.opacity = '0'; setTimeout(() => document.getElementById('tm-setup').classList.add('hidden'), 300);
@@ -406,13 +430,13 @@
         function tmResetUI() { document.getElementById('tm-setup').classList.remove('hidden'); setTimeout(() => document.getElementById('tm-setup').style.opacity = '1', 50); document.getElementById('tm-btn-start-pause').classList.replace('bg-amber-600', 'bg-theme'); document.getElementById('tm-icon-start-pause').classList.replace('fa-pause', 'fa-play'); document.getElementById('tm-display').innerHTML = formatTimeSimple(tmTimeRemaining); updateSvgRing('tm-progress-ring', tmTimeRemaining, tmTotalSeconds); }
 
         let intWorkSec = 40, intRestSec = 20, intTotalRounds = 8, intWarmupSec = 0, intCurrentRound = 1, intState = 'idle', intTimeRemaining = 0, intPhaseTotalTime = 0, intInterval = null, intIsRunning = false;
-        function setHiitPreset(p) { document.getElementById('int-work-m').value = p.workM.toString().padStart(2, '0'); document.getElementById('int-work-s').value = p.workS.toString().padStart(2, '0'); document.getElementById('int-rest-m').value = p.restM.toString().padStart(2, '0'); document.getElementById('int-rest-s').value = p.restS.toString().padStart(2, '0'); document.getElementById('int-warm-m').value = p.warmM.toString().padStart(2, '0'); document.getElementById('int-warm-s').value = p.warmS.toString().padStart(2, '0'); document.getElementById('int-input-rounds').value = p.rounds; }
+        function setHiitPreset(p) { document.getElementById('int-work-m').value = p.workM.toString().padStart(2, '0'); document.getElementById('int-work-s').value = p.workS.toString().padStart(2, '0'); document.getElementById('int-rest-m').value = p.restM.toString().padStart(2, '0'); document.getElementById('int-rest-s').value = p.restS.toString().padStart(2, '0'); document.getElementById('int-warm-m').value = p.warmM.toString().padStart(2, '0'); document.getElementById('int-warm-s').value = p.warmS.toString().padStart(2, '0'); document.getElementById('int-input-rounds').value = p.rounds; saveLastConfigOffline(); }
         
         ['int-work-m', 'int-work-s', 'int-rest-m', 'int-rest-s', 'int-warm-m', 'int-warm-s', 'int-input-rounds'].forEach(id => { 
             document.getElementById(id).addEventListener('input', () => { 
-                // === AUTO-SAVE HIIT ===
-                if (currentActivePresetId && currentPresetMode === 'hiit') { 
-                    const pIndex = myPresets.findIndex(p => p.id === currentActivePresetId);
+                const activeId = localStorage.getItem('fittimer_active_hiit_preset');
+                if (activeId && currentPresetMode === 'hiit') { 
+                    const pIndex = myPresets.findIndex(p => p.id === activeId);
                     if (pIndex > -1) {
                         myPresets[pIndex].workM = parseInt(document.getElementById('int-work-m').value) || 0;
                         myPresets[pIndex].workS = parseInt(document.getElementById('int-work-s').value) || 0;
@@ -428,6 +452,7 @@
                     document.getElementById('int-status').innerText = "CONFIGURAÇÃO"; 
                     document.getElementById('int-status').className = "text-lg sm:text-xl font-bold uppercase tracking-widest text-slate-400"; 
                 }
+                saveLastConfigOffline();
             }); 
         });
 
@@ -460,7 +485,7 @@
         function swResetOrLap() { if (swIsRunning) { swLaps.unshift({ total: swElapsedTime, split: swElapsedTime - (swLaps.length > 0 ? swLaps[0].total : 0) }); renderLaps(); } else { swElapsedTime = 0; swLaps = []; swUpdateDisplay(); renderLaps(); document.getElementById('sw-icon-reset-lap').classList.replace('fa-rotate-left', 'fa-flag'); } }
         function renderLaps() { const cont = document.getElementById('sw-laps'); if (swLaps.length === 0) { cont.innerHTML = '<li class="text-center text-slate-500 text-sm mt-4">Nenhuma volta</li>'; return; } cont.innerHTML = ''; swLaps.forEach((l, i) => { let dT=new Date(l.total); let dS=new Date(l.split); cont.innerHTML += `<li class="flex justify-between py-3 border-b border-slate-800/50 text-base font-mono bg-slate-800/20 px-2 rounded"><span class="text-slate-400">#${(swLaps.length - i).toString().padStart(2, '0')}</span><span class="text-theme text-sm flex items-center">+${dS.getUTCMinutes().toString().padStart(2, '0')}:${dS.getUTCSeconds().toString().padStart(2, '0')}.${Math.floor(dS.getUTCMilliseconds() / 10).toString().padStart(2, '0')}</span><span class="text-white font-bold">${dT.getUTCMinutes().toString().padStart(2, '0')}:${dT.getUTCSeconds().toString().padStart(2, '0')}.${Math.floor(dT.getUTCMilliseconds() / 10).toString().padStart(2, '0')}</span></li>`; }); }
 
-        applyThemeSettings(); renderPresets(); renderTimerPresets(); renderHistory(); renderBadges(); updateTmDisplayFromInputs(); switchTab('interval');
+        applyThemeSettings(); loadLastConfigOffline(); renderPresets(); renderTimerPresets(); renderHistory(); renderBadges(); updateTmDisplayFromInputs(); switchTab('interval');
     </script>
 
     <!-- FIREBASE & SINCRONIZAÇÃO NUVEM -->
@@ -483,49 +508,63 @@
         const db = getFirestore(app); 
         const provider = new GoogleAuthProvider(); 
         let syncTimeout = null;
-        
-        // Verificação Robusta Pós-Redirecionamento do Login
-        getRedirectResult(auth).catch((error) => {
+
+        // Trata erros de login silenciosos após voltar do Google
+        getRedirectResult(auth).then((result) => {
+            // Se logou com sucesso, o onAuthStateChanged cuida disso.
+        }).catch((error) => {
             console.error("Erro na autenticação:", error);
-            showSystemToast("Falha no login: " + error.message, true);
+            showSystemToast("Falha no login: " + error.code, true);
             const loginBtn = document.getElementById('btn-login');
             loginBtn.innerHTML = `<i class="fa-brands fa-google text-blue-400 text-xl"></i> Conectar Nuvem`;
             loginBtn.disabled = false;
         });
 
-        // Funções de Login com Proteção de Cliques (Anti-Spam)
+        // Função segura de Login (Impede duplo clique)
         window.firebaseLogin = () => {
             const loginBtn = document.getElementById('btn-login');
             loginBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-xl text-blue-400"></i> Conectando...`;
-            loginBtn.disabled = true; // Trava o botão para evitar múltiplos cliques
+            loginBtn.disabled = true;
             signInWithRedirect(auth, provider);
         };
-        
+
+        // Função segura de Logout (Limpa o celular para o próximo usuário)
         window.firebaseLogout = () => {
             const loginBtn = document.getElementById('btn-login');
-            loginBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-xl text-red-400"></i> Desconectando...`;
+            loginBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-xl text-red-400"></i> Saindo...`;
             loginBtn.disabled = true;
             signOut(auth).then(() => {
-                window.location.reload(); // Recarrega a página ao sair para limpar os dados seguros
+                // A barreira real: limpa a memória do app assim que sair da conta
+                localStorage.removeItem('fittimer_history');
+                localStorage.removeItem('fittimer_customPresets');
+                localStorage.removeItem('fittimer_timerPresets');
+                localStorage.removeItem('fittimer_badges');
+                localStorage.removeItem('fittimer_active_hiit_preset');
+                localStorage.removeItem('fittimer_lastConfig');
+                // Força recarregar a página para dar uma "tela em branco" ao novo usuário
+                window.location.reload();
             });
         };
 
-        // Escuta o Estado de Autenticação (Para trocar o botão)
+        // Ouve ativamente quem está logado para forçar o botão a mudar
         onAuthStateChanged(auth, async (user) => {
             const cloudIcon = document.getElementById('cloud-icon'); 
             const loginBtn = document.getElementById('btn-login');
             
             if (user) {
-                // Usuário Logado - Muda a Interface do Botão para "Sair" (Logout)
                 cloudIcon.className = "fa-solid fa-cloud text-theme text-lg transition-colors";
+                // A UI obriga o botão a virar botão de Sair
                 loginBtn.innerHTML = `<i class="fa-solid fa-right-from-bracket mr-2 text-white"></i>Sair da Conta (${user.email.split('@')[0]})`; 
                 loginBtn.className = "w-full py-4 mb-6 bg-red-500/20 text-red-400 font-bold rounded-2xl border border-red-500/50 shadow-lg flex items-center justify-center gap-3 hover:bg-red-500/30 transition"; 
-                loginBtn.onclick = window.firebaseLogout;
                 loginBtn.disabled = false;
                 
-                cloudIcon.classList.add('animate-pulse', 'text-blue-400');
+                // MATA a ação de login e FORÇA a ação de sair
+                loginBtn.onclick = (e) => {
+                    e.preventDefault();
+                    window.firebaseLogout();
+                };
                 
-                // Baixa os dados da Nuvem
+                cloudIcon.classList.add('animate-pulse', 'text-blue-400');
                 try {
                     const docSnap = await getDoc(doc(db, "users", user.uid));
                     if (docSnap.exists()) {
@@ -544,21 +583,22 @@
                 } catch(e) {} 
                 cloudIcon.classList.remove('animate-pulse', 'text-blue-400');
             } else {
-                // Ninguém Logado - Mantém o botão de "Conectar" normal
                 cloudIcon.className = "fa-solid fa-cloud text-slate-600 text-lg transition-colors";
                 loginBtn.innerHTML = `<i class="fa-brands fa-google text-blue-400 text-xl"></i> Conectar Nuvem`; 
                 loginBtn.className = "w-full py-4 mb-6 bg-slate-800 text-white font-bold rounded-2xl border border-blue-500/50 shadow-lg flex items-center justify-center gap-3 hover:bg-slate-700 transition"; 
-                loginBtn.onclick = window.firebaseLogin;
                 loginBtn.disabled = false;
+                
+                // MATA a ação de sair e FORÇA a ação de login
+                loginBtn.onclick = (e) => {
+                    e.preventDefault();
+                    window.firebaseLogin();
+                };
             }
         });
 
-        // Sincronização Automática Oculta
         window.triggerCloudSync = () => {
             if(!auth.currentUser) return;
-            const cloudIcon = document.getElementById('cloud-icon'); 
-            cloudIcon.className = "fa-solid fa-cloud text-blue-400 text-lg animate-pulse transition-colors";
-            
+            const cloudIcon = document.getElementById('cloud-icon'); cloudIcon.className = "fa-solid fa-cloud text-blue-400 text-lg animate-pulse transition-colors";
             clearTimeout(syncTimeout);
             syncTimeout = setTimeout(async () => {
                 try {
@@ -576,9 +616,7 @@
                         lastSync: new Date().toISOString()
                     }, { merge: true });
                     cloudIcon.className = "fa-solid fa-cloud text-theme text-lg transition-colors";
-                } catch(e) { 
-                    cloudIcon.className = "fa-solid fa-cloud text-red-500 text-lg transition-colors"; 
-                }
+                } catch(e) { cloudIcon.className = "fa-solid fa-cloud text-red-500 text-lg transition-colors"; }
             }, 1500); 
         };
     </script>
