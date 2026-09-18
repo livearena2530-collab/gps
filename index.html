@@ -222,7 +222,7 @@
         </section>
 
         <!-- ================= MODO GPS (NOVO!) ================= -->
-        <section id="view-gps" class="absolute inset-0 flex flex-col hidden opacity-0 transition-opacity overflow-hidden pt-28">
+        <section id="view-gps" class="absolute inset-0 flex flex-col hidden opacity-0 transition-opacity overflow-hidden pt-16">
             <!-- Div do Mapa Ocupando o Fundo -->
             <div id="map-container" class="absolute inset-0 z-0 w-full h-full"></div>
             
@@ -230,7 +230,7 @@
             <div class="relative z-10 flex flex-col h-full pointer-events-none">
                 
                 <!-- Tipo de Atividade e Alerta -->
-                <div class="mt-2 mx-4 flex flex-col items-center pointer-events-auto">
+                <div class="mt-[100px] mx-4 flex flex-col items-center pointer-events-auto">
                     <div id="gps-activity-selector" class="bg-slate-900/80 backdrop-blur-md p-1 rounded-full border border-slate-700 shadow-lg flex gap-1 mb-2">
                         <button onclick="setGpsActivity('Corrida')" id="btn-type-run" class="px-6 py-2 rounded-full bg-theme text-white font-bold text-sm transition-all shadow-md"><i class="fa-solid fa-person-running mr-2"></i>Corrida</button>
                         <button onclick="setGpsActivity('Caminhada')" id="btn-type-walk" class="px-6 py-2 rounded-full text-slate-400 font-bold text-sm transition-all"><i class="fa-solid fa-person-walking mr-2"></i>Caminhada</button>
@@ -274,10 +274,10 @@
                     </div>
 
                     <div class="flex justify-around items-center gap-4 hidden" id="gps-controls-active">
-                        <button onclick="pauseGpsSession()" id="btn-gps-pause" class="bg-amber-500 text-white w-20 h-20 rounded-full shadow-lg text-2xl flex items-center justify-center transition-transform active:scale-95">
+                        <button onclick="pauseGpsSession()" id="btn-gps-pause" class="bg-amber-500 text-white w-20 h-20 rounded-full shadow-lg text-2xl flex items-center justify-center transition-transform active:scale-95 mt-16">
                             <i class="fa-solid fa-pause"></i>
                         </button>
-                        <button onclick="stopGpsSession()" class="bg-red-500 text-white w-20 h-20 rounded-full shadow-lg text-2xl flex items-center justify-center transition-transform active:scale-95">
+                        <button onclick="stopGpsSession()" class="bg-red-500 text-white w-20 h-20 rounded-full shadow-lg text-2xl flex items-center justify-center transition-transform active:scale-95 mt-16">
                             <i class="fa-solid fa-stop"></i>
                         </button>
                     </div>
@@ -287,27 +287,51 @@
 
         <!-- ================= MODO HISTÓRICO (GAMIFICAÇÃO) ================= -->
         <section id="view-history" class="absolute inset-0 pt-20 flex flex-col items-center py-6 px-4 hidden opacity-0 transition-opacity overflow-y-auto no-scrollbar">
-            <!-- Conteúdo mantido idêntico ao original, apenas renderizado pelo JS -->
+            
             <div class="w-full flex justify-between items-end mb-4">
                 <h2 class="text-2xl font-black text-white">Meu Perfil</h2>
                 <div class="flex items-center gap-1 text-orange-400 font-bold text-sm bg-orange-400/10 px-3 py-1 rounded-full border border-orange-400/20">
                     <i class="fa-solid fa-fire"></i> <span id="hist-streak">0 Dias</span>
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-3 w-full mb-6">
-                <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700 flex flex-col items-center justify-center text-center shadow-md">
-                    <span class="text-3xl font-black text-white" id="hist-total-workouts">0</span><span class="text-[9px] text-theme font-bold uppercase mt-1">Treinos Concluídos</span>
+            
+            <!-- Resumo -->
+            <div class="grid grid-cols-3 gap-2 w-full mb-6">
+                <div class="bg-slate-800/80 p-2 rounded-2xl border border-slate-700 flex flex-col items-center justify-center text-center shadow-md">
+                    <span class="text-2xl font-black text-white" id="hist-total-workouts">0</span>
+                    <span class="text-[8px] text-theme font-bold uppercase mt-1">Treinos</span>
                 </div>
-                <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700 flex flex-col items-center justify-center text-center shadow-md">
-                    <span class="text-3xl font-black text-white" id="hist-total-km">0</span><span class="text-[9px] text-blue-400 font-bold uppercase mt-1">Km Percorridos</span>
+                <div class="bg-slate-800/80 p-2 rounded-2xl border border-slate-700 flex flex-col items-center justify-center text-center shadow-md">
+                    <span class="text-2xl font-black text-white" id="hist-total-minutes">0</span>
+                    <span class="text-[8px] text-blue-400 font-bold uppercase mt-1">Minutos</span>
+                </div>
+                <div class="bg-slate-800/80 p-2 rounded-2xl border border-slate-700 flex flex-col items-center justify-center text-center shadow-md">
+                    <span class="text-2xl font-black text-white" id="hist-total-km">0</span>
+                    <span class="text-[8px] text-purple-400 font-bold uppercase mt-1">Km Totais</span>
                 </div>
             </div>
-            <!-- Gamificação -->
+
+            <!-- Gamificação / Conquistas -->
             <div class="w-full bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50 mb-6 shadow-lg">
-                <div class="flex items-center justify-between mb-4"><h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Medalhas</h3><span class="text-[9px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full font-bold" id="badge-count">0/6</span></div>
-                <div class="grid grid-cols-3 gap-3 w-full" id="badges-container"></div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Medalhas</h3>
+                    <span class="text-[9px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full font-bold" id="badge-count">0/6</span>
+                </div>
+                <div class="grid grid-cols-3 gap-3 w-full" id="badges-container">
+                    <!-- Preenchido via JS -->
+                </div>
             </div>
-            <!-- Histórico Lista -->
+
+            <!-- Gráfico Semanal -->
+            <div class="w-full bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50 mb-6">
+                <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Atividade da Semana</h3>
+                <div class="flex justify-between items-end h-24 gap-1 px-2" id="chart-week"></div>
+                <div class="flex justify-between text-[9px] text-slate-500 mt-2 font-bold px-2">
+                    <span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span><span>D</span>
+                </div>
+            </div>
+
+            <!-- Lista Histórico -->
             <div class="w-full mb-10">
                 <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Últimas Atividades</h3>
                 <ul id="history-list" class="space-y-2 w-full"></ul>
@@ -315,7 +339,7 @@
         </section>
 
         <!-- ================= CARD COMPARTILHAMENTO DE STATUS GPS (STRAVA STYLE) ================= -->
-        <div id="share-card-container" class="fixed -left-[3000px] top-0 pointer-events-none z-0">
+        <div id="share-card-container" class="fixed -left-[4000px] top-0 pointer-events-none z-0">
             <!-- Card Original do HIIT / Timer -->
             <div id="share-card" class="w-[600px] h-[800px] bg-slate-900 flex flex-col justify-between items-center p-12 rounded-3xl border-8 border-theme hidden">
                 <div class="text-center mt-10">
@@ -332,33 +356,59 @@
                 </div>
             </div>
 
-            <!-- Card Especial GPS -->
-            <div id="share-card-gps" class="w-[600px] h-[800px] bg-slate-900 rounded-3xl overflow-hidden border-8 border-theme relative flex flex-col hidden">
+            <!-- Card Especial GPS Premium (1080x1080 - Instagram Size) -->
+            <div id="share-card-gps" class="w-[1080px] h-[1080px] bg-slate-900 overflow-hidden relative flex flex-col hidden shadow-2xl">
                 <!-- Área reservada para o print do mapa -->
                 <div id="share-map-bg" class="absolute inset-0 bg-slate-800 z-0"></div>
-                <!-- Overlay Gradiente -->
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent z-10"></div>
                 
-                <div class="relative z-20 p-8 flex flex-col h-full justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="w-16 h-16 bg-theme rounded-2xl flex items-center justify-center text-white text-3xl shadow-lg"><i class="fa-solid fa-bolt"></i></div>
-                        <div>
-                            <h1 class="text-3xl font-black text-white tracking-wide">FitTimer Pro</h1>
-                            <p class="text-lg text-theme font-semibold uppercase tracking-widest" id="share-gps-type">Corrida Matinal</p>
+                <!-- Overlay Gradiente para Leitura Perfeita -->
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-slate-900/30 z-10"></div>
+                
+                <div class="relative z-20 p-12 flex flex-col h-full justify-between">
+                    <!-- Cabeçalho do Card (Logo e Data) -->
+                    <div class="flex justify-between items-start w-full">
+                        <div class="flex items-center gap-5">
+                            <div class="w-24 h-24 bg-theme rounded-3xl flex items-center justify-center text-white text-5xl shadow-[0_10px_25px_rgba(0,0,0,0.5)] border border-white/20">
+                                <i class="fa-solid fa-bolt"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-5xl font-black text-white tracking-wider drop-shadow-lg">FitTimer</h1>
+                                <p class="text-2xl text-theme font-bold uppercase tracking-widest drop-shadow-md" id="share-gps-type">Corrida</p>
+                            </div>
+                        </div>
+                        <div class="text-right drop-shadow-lg">
+                            <p class="text-3xl text-white font-bold" id="share-gps-date">--</p>
+                            <p class="text-xl text-slate-300 font-semibold uppercase tracking-widest" id="share-gps-timeofday">--</p>
                         </div>
                     </div>
 
-                    <div class="mt-auto mb-6">
-                        <div class="timer-display text-[120px] font-bold text-white leading-none drop-shadow-2xl mb-2" id="share-gps-dist">0.00 <span class="text-5xl text-slate-300 font-sans">km</span></div>
+                    <!-- Rodapé do Card (Estatísticas) -->
+                    <div class="w-full flex flex-col gap-8 mt-auto mb-6">
+                        <!-- Distância Grande -->
+                        <div class="flex items-end gap-4 mb-2 drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)]">
+                            <div class="timer-display text-[200px] font-bold text-white leading-none" id="share-gps-dist">0.00</div>
+                            <div class="text-6xl text-theme font-black mb-8">km</div>
+                        </div>
                         
-                        <div class="flex gap-4 w-full">
-                            <div class="bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-slate-700 flex-1">
-                                <span class="text-slate-400 text-sm font-bold uppercase block mb-1">Ritmo</span>
-                                <span class="text-3xl font-black text-white" id="share-gps-pace">--'--"</span>
+                        <!-- Blocos de Dados -->
+                        <div class="grid grid-cols-3 gap-6 w-full">
+                            <div class="bg-slate-900/80 backdrop-blur-xl p-8 rounded-[32px] border border-slate-700 shadow-2xl flex flex-col justify-center">
+                                <span class="text-slate-400 text-xl font-bold uppercase mb-2 flex items-center gap-3"><i class="fa-solid fa-stopwatch text-theme text-2xl"></i> Tempo</span>
+                                <span class="text-6xl font-black text-white timer-display" id="share-gps-time">00:00</span>
                             </div>
-                            <div class="bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-slate-700 flex-1">
-                                <span class="text-slate-400 text-sm font-bold uppercase block mb-1">Tempo</span>
-                                <span class="text-3xl font-black text-white" id="share-gps-time">00:00:00</span>
+                            <div class="bg-slate-900/80 backdrop-blur-xl p-8 rounded-[32px] border border-slate-700 shadow-2xl flex flex-col justify-center">
+                                <span class="text-slate-400 text-xl font-bold uppercase mb-2 flex items-center gap-3"><i class="fa-solid fa-shoe-prints text-theme text-2xl"></i> Ritmo</span>
+                                <span class="text-6xl font-black text-white flex items-baseline gap-2 timer-display">
+                                    <span id="share-gps-pace">--'--"</span>
+                                    <span class="text-2xl text-slate-400 font-sans">/km</span>
+                                </span>
+                            </div>
+                            <div class="bg-slate-900/80 backdrop-blur-xl p-8 rounded-[32px] border border-slate-700 shadow-2xl flex flex-col justify-center">
+                                <span class="text-slate-400 text-xl font-bold uppercase mb-2 flex items-center gap-3"><i class="fa-solid fa-fire text-theme text-2xl"></i> Cadência</span>
+                                <span class="text-6xl font-black text-white flex items-baseline gap-2 timer-display">
+                                    <span id="share-gps-cadence">--</span>
+                                    <span class="text-2xl text-slate-400 font-sans">ppm</span>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -366,8 +416,33 @@
             </div>
         </div>
 
+        <!-- ================= MODAIS DE PRESETS ================= -->
+        <div id="modal-save-preset" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[250] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
+            <div class="bg-slate-800 p-6 rounded-2xl w-full max-w-sm border border-slate-700 shadow-2xl transform scale-95 transition-transform duration-300" id="modal-save-preset-content">
+                <h3 class="text-white text-xl font-bold mb-1" id="modal-preset-title">Adicionar Treino</h3>
+                <p class="text-slate-400 text-[10px] mb-5 font-mono" id="modal-preset-details">--</p>
+                <input type="text" id="input-preset-name" placeholder="Ex: Treino de Perna" maxlength="20" autocomplete="off" class="w-full bg-slate-900 text-white px-4 py-3 rounded-xl outline-none border border-slate-700 focus:border-theme mb-6 font-semibold transition-all">
+                <div class="flex justify-end gap-3 w-full">
+                    <button onclick="closeModalPreset()" class="flex-1 py-3 text-slate-300 bg-slate-700 rounded-xl font-bold hover:bg-slate-600 transition">Cancelar</button>
+                    <button onclick="saveCurrentPreset()" class="flex-1 py-3 bg-theme text-white rounded-xl font-bold shadow-lg transition">Salvar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-options-preset" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[250] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
+            <div class="bg-slate-800 p-4 rounded-3xl w-full max-w-sm border border-slate-700 shadow-2xl transform scale-95 transition-transform duration-300" id="modal-options-preset-content">
+                <h3 class="text-slate-400 text-sm font-semibold text-center mb-4 pb-2 border-b border-slate-700/50 uppercase tracking-widest" id="options-title">Opções</h3>
+                <button onclick="triggerEditPreset()" class="w-full py-4 text-white text-lg font-semibold bg-slate-700/50 rounded-xl mb-3 flex items-center justify-center gap-3 transition">
+                    <i class="fa-solid fa-pen text-blue-400"></i> Renomear Favorito
+                </button>
+                <button onclick="triggerDeletePreset()" class="w-full py-4 text-white text-lg font-semibold bg-slate-700/50 rounded-xl mb-4 flex items-center justify-center gap-3 transition">
+                    <i class="fa-solid fa-trash text-red-400"></i> Excluir Favorito
+                </button>
+                <button onclick="closeOptionsModal()" class="w-full py-4 text-slate-300 text-lg font-bold bg-slate-900 rounded-xl border border-slate-700 transition">Cancelar</button>
+            </div>
+        </div>
+
         <!-- ================= MODAIS (Config, Opções, etc - Mantidos) ================= -->
-        <!-- Resumidos por espaço, mas existentes na lógica -->
         <div id="modal-settings" class="fixed inset-0 bg-slate-900/95 backdrop-blur-md z-[200] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
              <div class="bg-slate-800 p-5 rounded-3xl w-full max-w-sm border border-slate-700 shadow-2xl transform scale-95 transition-transform duration-300 flex flex-col" id="modal-settings-content">
                 <div class="flex justify-between items-center mb-5">
@@ -742,25 +817,52 @@
             }
         }
 
-        // ================= HISTÓRICO ATUALIZADO =================
+        // ================= HISTÓRICO, COMPARTILHAMENTO & GAMIFICAÇÃO =================
         let appHistory = JSON.parse(localStorage.getItem('fittimer_history')) || [];
-        
+        let currentStreak = 0;
+        let unlockedBadgesList = JSON.parse(localStorage.getItem('fittimer_badges')) || [];
+
+        const BADGES = [
+            { id: 'first', icon: 'fa-star', color: 'text-yellow-400', name: 'Iniciante', desc: 'Concluiu o 1º treino', check: (hist, streak) => hist.length >= 1 },
+            { id: 'athlete', icon: 'fa-dumbbell', color: 'text-emerald-400', name: 'Atleta', desc: 'Atingiu 10 treinos', check: (hist, streak) => hist.length >= 10 },
+            { id: 'centurion', icon: 'fa-shield-halved', color: 'text-blue-400', name: 'Centurião', desc: 'Atingiu 100 treinos', check: (hist, streak) => hist.length >= 100 },
+            { id: 'streak7', icon: 'fa-fire-flame-curved', color: 'text-orange-500', name: 'Foco Total', desc: 'Ofensiva de 7 dias', check: (hist, streak) => streak >= 7 },
+            { id: 'early', icon: 'fa-sun', color: 'text-yellow-200', name: 'Madrugador', desc: 'Treinou antes das 7h', check: (hist, streak) => hist.some(h => new Date(h.date).getHours() >= 4 && new Date(h.date).getHours() < 7) },
+            { id: 'night', icon: 'fa-moon', color: 'text-indigo-400', name: 'Coruja', desc: 'Treinou após as 22h', check: (hist, streak) => hist.some(h => new Date(h.date).getHours() >= 22 || new Date(h.date).getHours() < 3) }
+        ];
+
         function saveToHistory(type, minutes, distanceKm = 0) {
             const entry = { id: Date.now(), date: new Date().toISOString(), type: type, duration: minutes, distance: distanceKm };
             appHistory.unshift(entry);
             if(appHistory.length > 500) appHistory.pop();
             localStorage.setItem('fittimer_history', JSON.stringify(appHistory));
-            renderHistory(); 
             
-            if (typeof confetti === 'function') confetti({ particleCount: 150, spread: 100, origin: { y: 0.1 }, zIndex: 1000 });
+            const oldBadgesCount = unlockedBadgesList.length;
+            renderHistory(); 
+            const newBadgesCount = unlockedBadgesList.length;
+            
+            if (newBadgesCount > oldBadgesCount) {
+                setTimeout(() => {
+                    showToast("Nova Conquista Desbloqueada!");
+                    if (typeof confetti === 'function') confetti({ particleCount: 150, spread: 100, origin: { y: 0.1 }, zIndex: 1000 });
+                }, 1000);
+            }
         }
 
         function renderHistory() {
             const totalWorkouts = appHistory.length;
+            const totalMinutes = appHistory.reduce((acc, curr) => acc + (curr.duration || 0), 0);
             const totalKm = appHistory.reduce((acc, curr) => acc + (curr.distance || 0), 0);
+            
             document.getElementById('hist-total-workouts').innerText = totalWorkouts;
+            document.getElementById('hist-total-minutes').innerText = Math.round(totalMinutes);
             document.getElementById('hist-total-km').innerText = totalKm.toFixed(1);
-            document.getElementById('hist-streak').innerText = `${calculateStreak()} Dias`;
+
+            currentStreak = calculateStreak();
+            document.getElementById('hist-streak').innerText = `${currentStreak} Dias`;
+
+            renderWeeklyChart();
+            renderBadges();
 
             const list = document.getElementById('history-list'); list.innerHTML = '';
             if(appHistory.length === 0) { list.innerHTML = '<li class="text-slate-500 text-sm text-center mt-4">Nenhum treino concluído ainda.</li>'; return; }
@@ -768,8 +870,8 @@
             appHistory.slice(0, 15).forEach(h => {
                 const date = new Date(h.date);
                 const dateStr = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' às ' + date.getHours() + 'h' + date.getMinutes().toString().padStart(2,'0');
-                const isGps = h.type.includes("GPS");
-                const extraInfo = isGps ? `<span class="text-[9px] text-emerald-400 ml-2 font-bold">${h.distance.toFixed(2)} km</span>` : '';
+                const isGps = h.type && h.type.includes("GPS");
+                const extraInfo = isGps ? `<span class="text-[9px] text-emerald-400 ml-2 font-bold">${(h.distance||0).toFixed(2)} km</span>` : '';
                 
                 const li = document.createElement('li');
                 li.className = 'bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 flex justify-between items-center';
@@ -779,10 +881,60 @@
                         <span class="text-[9px] text-slate-400 uppercase tracking-widest">${dateStr}</span>
                     </div>
                     <div class="flex items-center gap-3">
-                        <span class="text-theme font-bold bg-theme/10 px-3 py-1 rounded-lg text-xs">${formatTimeSimple(h.duration*60)}</span>
+                        <span class="text-theme font-bold bg-theme/10 px-3 py-1 rounded-lg text-xs">${formatTimeSimple((h.duration||0)*60)}</span>
                     </div>
                 `;
                 list.appendChild(li);
+            });
+        }
+
+        function renderBadges() {
+            const container = document.getElementById('badges-container');
+            container.innerHTML = '';
+            let earnedCount = 0;
+            
+            BADGES.forEach(badge => {
+                const isUnlocked = badge.check(appHistory, currentStreak);
+                if (isUnlocked) {
+                    earnedCount++;
+                    if (!unlockedBadgesList.includes(badge.id)) unlockedBadgesList.push(badge.id);
+                }
+
+                const div = document.createElement('div');
+                div.className = `flex flex-col items-center justify-start p-2 bg-slate-900 border ${isUnlocked ? 'border-theme/50 shadow-lg' : 'border-slate-800'} rounded-xl text-center transition-all ${isUnlocked ? '' : 'opacity-40 grayscale'}`;
+                div.innerHTML = `
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center bg-slate-800 mb-1.5 ${isUnlocked ? 'shadow-[0_0_10px_rgba(255,255,255,0.1)]' : ''}">
+                        <i class="fa-solid ${badge.icon} text-xl ${isUnlocked ? badge.color : 'text-slate-500'}"></i>
+                    </div>
+                    <span class="text-[9px] font-bold text-white leading-tight mb-0.5">${badge.name}</span>
+                    <span class="text-[7px] text-slate-400 leading-tight px-1">${badge.desc}</span>
+                `;
+                container.appendChild(div);
+            });
+
+            document.getElementById('badge-count').innerText = `${earnedCount}/${BADGES.length}`;
+            localStorage.setItem('fittimer_badges', JSON.stringify(unlockedBadgesList));
+        }
+
+        function renderWeeklyChart() {
+            const chartContainer = document.getElementById('chart-week'); chartContainer.innerHTML = '';
+            const today = new Date(); const currentDayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1;
+            let weekData = [0,0,0,0,0,0,0]; let maxMins = 1;
+
+            appHistory.forEach(h => {
+                const d = new Date(h.date); const diffDays = Math.ceil(Math.abs(today - d) / (1000 * 60 * 60 * 24)) - 1;
+                if (diffDays <= 7) {
+                    const dayIdx = d.getDay() === 0 ? 6 : d.getDay() - 1;
+                    if (diffDays <= currentDayOfWeek || (diffDays > currentDayOfWeek && dayIdx > currentDayOfWeek == false)) {
+                         weekData[dayIdx] += (h.duration || 0); if(weekData[dayIdx] > maxMins) maxMins = weekData[dayIdx];
+                    }
+                }
+            });
+
+            weekData.forEach((mins, idx) => {
+                const heightPct = mins > 0 ? Math.max((mins / maxMins) * 100, 15) : 5;
+                const color = (idx === currentDayOfWeek) ? 'bg-theme' : (mins > 0 ? 'bg-theme opacity-50' : 'bg-slate-700');
+                chartContainer.innerHTML += `<div class="flex-1 flex flex-col justify-end items-center"><div class="w-full rounded-t-sm ${color} transition-all duration-1000" style="height: ${heightPct}%"></div></div>`;
             });
         }
 
@@ -809,23 +961,26 @@
             cardOriginal.classList.add('hidden');
             cardGps.classList.remove('hidden');
             
+            // Gerar Data Atual
+            const now = new Date();
+            const dateOptions = { day: 'numeric', month: 'short', year: 'numeric' };
+            document.getElementById('share-gps-date').innerText = now.toLocaleDateString('pt-BR', dateOptions);
+            const hour = now.getHours();
+            document.getElementById('share-gps-timeofday').innerText = (hour < 12) ? 'Manhã' : (hour < 18 ? 'Tarde' : 'Noite');
+            
             // Preenche os dados
             document.getElementById('share-gps-type').innerText = gpsActivityType;
             document.getElementById('share-gps-dist').innerText = gpsDistanceKm.toFixed(2);
-            document.getElementById('share-gps-pace').innerText = document.getElementById('gps-pace').innerText.split(' ')[0]; // Pega só o pace, tira o /km
+            document.getElementById('share-gps-pace').innerText = document.getElementById('gps-pace').innerText.split(' ')[0]; // Pega só o pace numérico
             document.getElementById('share-gps-time').innerText = document.getElementById('gps-time').innerText;
-
-            const themeHex = document.documentElement.style.getPropertyValue('--theme-base') || '#10b981';
-            cardGps.style.borderColor = themeHex; 
-            cardGps.querySelector('.bg-theme').style.backgroundColor = themeHex;
+            document.getElementById('share-gps-cadence').innerText = document.getElementById('gps-cadence').innerText.split(' ')[0];
 
             // Transfere a imagem do mapa Leaflet para o background do card
-            // Nota: Por conta do CORS, pode não funcionar 100% nativamente, então tiramos print do elemento map
             try {
                 // Dá um zoom out leve para mostrar toda a rota
                 if(gpsPositions.length > 0) leafletMap.fitBounds(L.polyline(gpsPositions).getBounds(), {padding: [50, 50]});
                 
-                await new Promise(r => setTimeout(r, 1000)); // Espera o mapa ajustar
+                await new Promise(r => setTimeout(r, 1200)); // Espera o mapa ajustar e renderizar as tiles do Google
 
                 const mapElement = document.getElementById('map-container');
                 const mapCanvas = await html2canvas(mapElement, { useCORS: true, allowTaint: true });
@@ -836,21 +991,27 @@
                 document.getElementById('share-map-bg').style.backgroundSize = 'cover';
                 document.getElementById('share-map-bg').style.backgroundPosition = 'center';
 
-                // Tira o print final do CARD COMPLETO
-                container.classList.remove('-left-[3000px]'); container.style.opacity = '0';
+                // Tira o print final do CARD COMPLETO EM ALTA RESOLUÇÃO
+                container.classList.remove('-left-[4000px]'); container.style.opacity = '0';
                 
-                const finalCanvas = await html2canvas(cardGps, { backgroundColor: '#0f172a', scale: 2, useCORS: true });
-                container.classList.add('-left-[3000px]'); container.style.opacity = '1';
+                // Scale 1 é suficiente pois a base já é 1080x1080
+                const finalCanvas = await html2canvas(cardGps, { backgroundColor: '#0f172a', scale: 1, useCORS: true });
+                
+                container.classList.add('-left-[4000px]'); container.style.opacity = '1';
                 
                 finalCanvas.toBlob(async (blob) => {
                     const file = new File([blob], "fittimer-gps-treino.png", { type: "image/png" });
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ title: 'FitTimer Pro', text: 'Minha corrida no FitTimer!', files: [file] });
-                    else { const link = document.createElement('a'); link.download = 'fittimer-gps-treino.png'; link.href = URL.createObjectURL(blob); link.click(); alert("Imagem salva com sucesso!"); }
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({ title: 'FitTimer Pro', text: 'Minha atividade no FitTimer!', files: [file] });
+                    } else { 
+                        const link = document.createElement('a'); link.download = 'fittimer-gps-treino.png'; link.href = URL.createObjectURL(blob); link.click(); 
+                        showToast("Imagem salva na galeria!"); 
+                    }
                 }, 'image/png');
             } catch(e) { 
                 console.error("Erro ao gerar card GPS", e); 
-                container.classList.add('-left-[3000px]'); 
-                alert("Não foi possível gerar a imagem devido a restrições do navegador, mas o treino foi salvo!");
+                container.classList.add('-left-[4000px]'); 
+                showToast("Não foi possível processar a imagem. O treino foi salvo!");
             }
         }
 
@@ -867,10 +1028,394 @@
         document.getElementById('btn-unlock').addEventListener('mousedown', () => { document.getElementById('unlock-progress').style.width = '100%'; setTimeout(() => { document.getElementById('screen-lock-overlay').classList.add('opacity-0'); setTimeout(() => { document.getElementById('screen-lock-overlay').classList.add('hidden'); document.getElementById('unlock-progress').style.width = '0%'; }, 300); }, 1200); });
         document.getElementById('btn-unlock').addEventListener('mouseup', () => { document.getElementById('unlock-progress').style.width = '0%'; });
 
-        // Inicialização
+        // ================= FUNÇÕES DE ANIMAÇÃO E SOM =================
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+
+        function playBeep(type = 'short') {
+            if (!isSoundOn) { if (navigator.vibrate) vibrateDevice(type); return; }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = 'sine'; osc.frequency.value = (type === 'long' || type === 'end') ? 800 : 600;
+            const dur = (type === 'short') ? 0.2 : 0.6;
+            gain.gain.setValueAtTime(1, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+            osc.start(); osc.stop(audioCtx.currentTime + dur);
+            if(type === 'end') setTimeout(() => playBeep('long'), 500);
+            
+            if (navigator.vibrate) vibrateDevice(type);
+        }
+
+        function vibrateDevice(type) {
+            try { if (type === 'short') navigator.vibrate(100); else if (type === 'long') navigator.vibrate(400); else if (type === 'end') navigator.vibrate([400, 200, 400]); } catch(e) {}
+        }
+        
+        function speakVoiceCoach(text) {
+            if (!isSoundOn) return;
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); 
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'pt-BR'; utterance.rate = 1.3; 
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function updateSvgRing(ringId, timeRemaining, totalTime) {
+            const ring = document.getElementById(ringId);
+            if(ring && totalTime > 0) ring.style.strokeDashoffset = 100 - ((timeRemaining / totalTime) * 100);
+        }
+
+        // ================= MODO TIMER =================
+        let tmTotalSeconds = 0, tmTimeRemaining = 0, tmInterval = null, tmIsRunning = false;
+        
+        function updateTmDisplayFromInputs() {
+            if(!tmIsRunning) {
+                tmTotalSeconds = ((parseInt(document.getElementById('tm-input-min').value) || 0) * 60) + (parseInt(document.getElementById('tm-input-sec').value) || 0);
+                tmTimeRemaining = tmTotalSeconds; 
+                document.getElementById('tm-display').innerHTML = formatTimeSimple(tmTimeRemaining);
+                updateSvgRing('tm-progress-ring', tmTimeRemaining, tmTotalSeconds);
+                
+                // Auto-Save no Preset Ativo
+                if (currentActiveTmPresetId !== null && tmTotalSeconds > 0) {
+                    const preset = tmPresets.find(p => p.id === currentActiveTmPresetId);
+                    if (preset) {
+                        preset.sec = tmTotalSeconds;
+                        localStorage.setItem('fittimer_timerPresets', JSON.stringify(tmPresets));
+                    }
+                }
+            }
+        }
+
+        function tmStartPause() {
+            if (tmIsRunning) {
+                clearInterval(tmInterval); tmIsRunning = false; releaseWakeLock();
+                document.getElementById('tm-btn-start-pause').classList.replace('bg-amber-600', 'bg-theme'); 
+                document.getElementById('tm-icon-start-pause').classList.replace('fa-pause', 'fa-play');
+            } else {
+                if(tmTimeRemaining === 0) updateTmDisplayFromInputs();
+                if(tmTimeRemaining === 0) return;
+                
+                document.getElementById('tm-setup').style.opacity = '0'; setTimeout(() => document.getElementById('tm-setup').classList.add('hidden'), 300);
+                document.getElementById('tm-presets-wrapper').classList.add('opacity-0'); setTimeout(() => document.getElementById('tm-presets-wrapper').classList.add('hidden'), 300);
+
+                tmInterval = setInterval(() => {
+                    tmTimeRemaining--; document.getElementById('tm-display').innerHTML = formatTimeSimple(tmTimeRemaining);
+                    updateSvgRing('tm-progress-ring', tmTimeRemaining, tmTotalSeconds);
+                    
+                    if (tmTimeRemaining === Math.floor(tmTotalSeconds / 2) && tmTotalSeconds >= 20) speakVoiceCoach("Metade do tempo!");
+                    else if (tmTimeRemaining === 10 && tmTotalSeconds >= 15) speakVoiceCoach("Dez segundos!");
+                    else if (tmTimeRemaining === 3) speakVoiceCoach("Três"); else if (tmTimeRemaining === 2) speakVoiceCoach("Dois"); else if (tmTimeRemaining === 1) speakVoiceCoach("Um"); 
+                    else if (tmTimeRemaining <= 3 && tmTimeRemaining > 0) playBeep('short');
+                    
+                    if (tmTimeRemaining <= 0) {
+                        clearInterval(tmInterval); tmIsRunning = false; playBeep('end'); tmResetUI();
+                        let timerName = "Timer Livre"; if(currentActiveTmPresetId) { const p = tmPresets.find(x => x.id === currentActiveTmPresetId); if(p) timerName = p.name; }
+                        saveToHistory(timerName, tmTotalSeconds / 60, 0);
+                        if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, zIndex: 1000 });
+                    }
+                }, 1000);
+                tmIsRunning = true; requestWakeLock();
+                document.getElementById('tm-btn-start-pause').classList.replace('bg-theme', 'bg-amber-600'); 
+                document.getElementById('tm-icon-start-pause').classList.replace('fa-play', 'fa-pause');
+            }
+        }
+
+        function tmReset() { clearInterval(tmInterval); tmIsRunning = false; releaseWakeLock(); updateTmDisplayFromInputs(); tmResetUI(); }
+        
+        function tmResetUI() {
+            document.getElementById('tm-setup').classList.remove('hidden'); setTimeout(() => document.getElementById('tm-setup').style.opacity = '1', 50);
+            document.getElementById('tm-presets-wrapper').classList.remove('hidden'); setTimeout(() => document.getElementById('tm-presets-wrapper').classList.remove('opacity-0'), 50);
+            document.getElementById('tm-btn-start-pause').classList.replace('bg-amber-600', 'bg-theme'); document.getElementById('tm-icon-start-pause').classList.replace('fa-pause', 'fa-play');
+            document.getElementById('tm-display').innerHTML = formatTimeSimple(tmTimeRemaining); updateSvgRing('tm-progress-ring', tmTimeRemaining, tmTotalSeconds);
+        }
+
+        // ================= MODO HIIT =================
+        let intWorkSec = 40, intRestSec = 20, intTotalRounds = 8, intWarmupSec = 0;
+        let intCurrentRound = 1, intState = 'idle', intTimeRemaining = 0, intPhaseTotalTime = 0, intInterval = null, intIsRunning = false;
+        
+        function updateIntBgColor() {
+            const bodyBg = document.getElementById('app-body');
+            bodyBg.className = 'flex flex-col h-[100dvh] w-full transition-colors duration-500';
+            if (intState === 'prep' || intState === 'warmup') bodyBg.classList.add('bg-prep');
+            else if (intState === 'work') bodyBg.classList.add('bg-work');
+            else if (intState === 'rest') bodyBg.classList.add('bg-rest');
+            else bodyBg.classList.add('bg-slate-900');
+        }
+
+        function intStartPause() {
+            if (intIsRunning) {
+                clearInterval(intInterval); intIsRunning = false; releaseWakeLock();
+                document.getElementById('int-btn-start-pause').classList.replace('bg-amber-600', 'bg-theme'); document.getElementById('int-icon-start-pause').classList.replace('fa-pause', 'fa-play');
+            } else {
+                if (intState === 'idle') {
+                    intWorkSec = (parseInt(document.getElementById('int-work-m').value) || 0) * 60 + (parseInt(document.getElementById('int-work-s').value) || 0);
+                    intRestSec = (parseInt(document.getElementById('int-rest-m').value) || 0) * 60 + (parseInt(document.getElementById('int-rest-s').value) || 0);
+                    intTotalRounds = parseInt(document.getElementById('int-input-rounds').value) || 1; 
+                    intWarmupSec = (parseInt(document.getElementById('int-warmup-m').value) || 0) * 60 + (parseInt(document.getElementById('int-warmup-s').value) || 0);
+                    
+                    intCurrentRound = 1;
+                    if(intWarmupSec > 0) { intState = 'warmup'; intTimeRemaining = intWarmupSec; intPhaseTotalTime = intWarmupSec; speakVoiceCoach("Aquecimento!"); }
+                    else { intState = 'prep'; intTimeRemaining = 5; intPhaseTotalTime = 5; speakVoiceCoach("Prepare-se!"); }
+                    
+                    document.getElementById('int-setup').classList.add('hidden'); 
+                    document.getElementById('int-presets-wrapper').classList.add('hidden');
+                    updateIntBgColor();
+                }
+                intUpdateUI(); intInterval = setInterval(intTick, 1000); intIsRunning = true; requestWakeLock();
+                document.getElementById('int-btn-start-pause').classList.replace('bg-theme', 'bg-amber-600'); document.getElementById('int-icon-start-pause').classList.replace('fa-play', 'fa-pause');
+            }
+        }
+
+        function intTick() {
+            intTimeRemaining--;
+            
+            if (intTimeRemaining === Math.floor(intPhaseTotalTime / 2) && intPhaseTotalTime >= 20) speakVoiceCoach("Metade do tempo!");
+            else if (intTimeRemaining === 10 && intPhaseTotalTime >= 15) speakVoiceCoach("Dez segundos!");
+            else if (intTimeRemaining === 3) speakVoiceCoach("Três"); 
+            else if (intTimeRemaining === 2) speakVoiceCoach("Dois"); 
+            else if (intTimeRemaining === 1) speakVoiceCoach("Um"); 
+            else if (intTimeRemaining <= 3 && intTimeRemaining > 0) playBeep('short');
+
+            if (intTimeRemaining <= 0) {
+                playBeep('long');
+                if (intState === 'warmup' || intState === 'prep') { intState = 'work'; intTimeRemaining = intWorkSec; intPhaseTotalTime = intWorkSec; speakVoiceCoach("Ação!"); } 
+                else if (intState === 'work') {
+                    if (intCurrentRound >= intTotalRounds) { intFinish(); return; } 
+                    else {
+                        if (intRestSec > 0) { intState = 'rest'; intTimeRemaining = intRestSec; intPhaseTotalTime = intRestSec; speakVoiceCoach("Descanso!"); } 
+                        else { intCurrentRound++; intTimeRemaining = intWorkSec; intPhaseTotalTime = intWorkSec; speakVoiceCoach("Ação!"); }
+                    }
+                } 
+                else if (intState === 'rest') { intState = 'work'; intCurrentRound++; intTimeRemaining = intWorkSec; intPhaseTotalTime = intWorkSec; speakVoiceCoach("Ação!"); }
+                updateIntBgColor();
+            }
+            intUpdateUI();
+        }
+
+        function intUpdateUI() {
+            if (intTimeRemaining < 0) intTimeRemaining = 0;
+            const statusEl = document.getElementById('int-status');
+            
+            document.getElementById('int-display').innerHTML = formatTimeSimple(intTimeRemaining);
+            updateSvgRing('int-progress-ring', intTimeRemaining, intPhaseTotalTime);
+
+            if (intState === 'work' || intState === 'rest') document.getElementById('int-display').classList.add('animate-pulse-glow');
+            else document.getElementById('int-display').classList.remove('animate-pulse-glow');
+
+            if (intState === 'prep' || intState === 'warmup') { statusEl.innerText = "AQUECIMENTO"; statusEl.className = "text-xl sm:text-2xl font-bold uppercase tracking-widest text-yellow-400"; } 
+            else if (intState === 'work') { statusEl.innerText = "AÇÃO!"; statusEl.className = "text-4xl sm:text-5xl font-black uppercase tracking-widest text-white drop-shadow-md"; } 
+            else if (intState === 'rest') { statusEl.innerText = "DESCANSO"; statusEl.className = "text-2xl sm:text-3xl font-bold uppercase tracking-widest text-red-200"; } 
+            else { statusEl.innerText = "CONFIGURAÇÃO"; statusEl.className = "text-lg sm:text-xl font-bold uppercase tracking-widest text-slate-400"; }
+            
+            document.getElementById('int-rounds-display').innerText = (intState === 'work' || intState === 'rest') ? `Série ${intCurrentRound} de ${intTotalRounds}` : "";
+        }
+
+        function intFinish() {
+            clearInterval(intInterval); intIsRunning = false; intState = 'idle'; releaseWakeLock(); playBeep('end');
+            
+            const totalSecs = (intWorkSec + intRestSec) * intTotalRounds + intWarmupSec;
+            let treinoName = "Treino HIIT"; if(currentActivePresetId) { const p = myPresets.find(x => x.id === currentActivePresetId); if(p) treinoName = p.name; }
+            saveToHistory(treinoName, totalSecs / 60, 0);
+
+            speakVoiceCoach("Treino concluído! Excelente trabalho!");
+            if (typeof confetti === 'function') { confetti({ particleCount: 150, spread: 80, origin: { y: 0.3 }, zIndex: 1000 }); }
+
+            const statusEl = document.getElementById('int-status');
+            statusEl.innerText = "CONCLUÍDO!"; statusEl.className = "text-2xl sm:text-3xl font-bold uppercase tracking-widest text-theme";
+            document.getElementById('int-display').innerHTML = "00:00"; document.getElementById('int-rounds-display').innerText = ""; document.getElementById('int-display').classList.remove('animate-pulse-glow'); updateSvgRing('int-progress-ring', 0, 100);
+            updateIntBgColor();
+            
+            setTimeout(() => { intResetUI(); switchTab('history'); }, 4000);
+        }
+
+        function intReset() { clearInterval(intInterval); intIsRunning = false; intState = 'idle'; releaseWakeLock(); intResetUI(); updateIntBgColor(); }
+        
+        function intResetUI() {
+            document.getElementById('int-setup').classList.remove('hidden'); 
+            document.getElementById('int-presets-wrapper').classList.remove('hidden');
+            document.getElementById('int-btn-start-pause').classList.replace('bg-amber-600', 'bg-theme'); document.getElementById('int-icon-start-pause').classList.replace('fa-pause', 'fa-play');
+            document.getElementById('int-display').innerHTML = "00:00"; 
+            updateSvgRing('int-progress-ring', 100, 100); 
+            const statusEl = document.getElementById('int-status');
+            statusEl.innerText = "CONFIGURAÇÃO"; statusEl.className = "text-lg sm:text-xl font-bold uppercase tracking-widest text-slate-400"; document.getElementById('int-rounds-display').innerText = "";
+        }
+
+        // ================= PRESETS OFFLINE (HIIT & TIMER) =================
+        const STORAGE_PRESETS_KEY = 'fittimer_customPresets';
+        const STORAGE_TM_PRESETS_KEY = 'fittimer_timerPresets';
+        
+        let currentEditPresetId = null; let selectedOptionsPresetId = null; let pressTimer; let isLongPress = false; 
+        let currentActivePresetId = localStorage.getItem('fittimer_activePreset') || null;
+        let currentActiveTmPresetId = localStorage.getItem('fittimer_activeTmPreset') || null;
+        let presetContext = 'hiit'; 
+
+        let myPresets = JSON.parse(localStorage.getItem(STORAGE_PRESETS_KEY)) || [
+            { id: 'def1', name: 'Tabata', work: 20, rest: 10, rounds: 8, warmup: 10 }, 
+            { id: 'def2', name: 'Funcional', work: 45, rest: 15, rounds: 10, warmup: 30 }, 
+            { id: 'def3', name: 'Boxe', work: 180, rest: 60, rounds: 5, warmup: 60 }
+        ];
+        
+        let tmPresets = JSON.parse(localStorage.getItem(STORAGE_TM_PRESETS_KEY)) || [
+            { id: 'tdef1', name: 'Ovo Cozido', sec: 420 },
+            { id: 'tdef2', name: 'Prancha', sec: 120 },
+            { id: 'tdef3', name: 'Descanso Curto', sec: 45 }
+        ];
+
+        function renderPresets() {
+            const container = document.getElementById('int-presets'); if(!container) return; container.innerHTML = '';
+            myPresets.forEach(p => {
+                const isActive = (p.id === currentActivePresetId);
+                const btn = document.createElement('button');
+                btn.className = isActive 
+                    ? 'h-10 px-4 bg-theme text-white text-sm font-bold rounded-lg border border-theme shadow-md transition-all shrink-0 snap-center flex items-center justify-center' 
+                    : 'h-10 px-4 bg-slate-800 text-slate-300 text-sm font-bold rounded-lg border border-slate-700 active:bg-slate-700 transition-all shrink-0 snap-center flex items-center justify-center';
+                btn.innerText = p.name;
+                
+                const startPress = () => { isLongPress = false; pressTimer = setTimeout(() => { isLongPress = true; if(navigator.vibrate) navigator.vibrate(50); openOptionsModal(p.id, p.name, 'hiit'); }, 500); };
+                const cancelPress = () => clearTimeout(pressTimer);
+                btn.addEventListener('touchstart', startPress, {passive: true}); btn.addEventListener('touchend', cancelPress); btn.addEventListener('touchmove', cancelPress);
+                btn.addEventListener('mousedown', startPress); btn.addEventListener('mouseup', cancelPress); btn.addEventListener('mouseleave', cancelPress);
+
+                btn.onclick = (e) => { 
+                    e.preventDefault(); 
+                    if (!isLongPress) { 
+                        currentActivePresetId = p.id; localStorage.setItem('fittimer_activePreset', p.id);
+                        document.getElementById('int-work-m').value = Math.floor(p.work/60).toString().padStart(2, '0'); document.getElementById('int-work-s').value = (p.work%60).toString().padStart(2, '0');
+                        document.getElementById('int-rest-m').value = Math.floor(p.rest/60).toString().padStart(2, '0'); document.getElementById('int-rest-s').value = (p.rest%60).toString().padStart(2, '0');
+                        document.getElementById('int-input-rounds').value = p.rounds; 
+                        document.getElementById('int-warmup-m').value = Math.floor(p.warmup/60).toString().padStart(2, '0'); document.getElementById('int-warmup-s').value = (p.warmup%60).toString().padStart(2, '0');
+                        renderPresets(); 
+                    } 
+                };
+                container.appendChild(btn);
+            });
+            const addBtn = document.createElement('button'); addBtn.onclick = () => { presetContext = 'hiit'; openModalPreset(); };
+            addBtn.className = 'h-10 px-4 bg-slate-800/50 text-theme text-sm font-bold rounded-lg border border-theme/50 hover:bg-theme hover:text-white transition shrink-0 snap-center flex items-center justify-center gap-2';
+            addBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Novo'; container.appendChild(addBtn);
+        }
+
+        function renderTmPresets() {
+            const container = document.getElementById('tm-presets'); if(!container) return; container.innerHTML = '';
+            tmPresets.forEach(p => {
+                const isActive = (p.id === currentActiveTmPresetId);
+                const btn = document.createElement('button');
+                btn.className = isActive 
+                    ? 'h-10 px-4 bg-theme text-white text-sm font-bold rounded-lg border border-theme shadow-md transition-all shrink-0 snap-center flex items-center justify-center' 
+                    : 'h-10 px-4 bg-slate-800 text-slate-300 text-sm font-bold rounded-lg border border-slate-700 active:bg-slate-700 transition-all shrink-0 snap-center flex items-center justify-center';
+                btn.innerText = p.name;
+                
+                const startPress = () => { isLongPress = false; pressTimer = setTimeout(() => { isLongPress = true; if(navigator.vibrate) navigator.vibrate(50); openOptionsModal(p.id, p.name, 'timer'); }, 500); };
+                const cancelPress = () => clearTimeout(pressTimer);
+                btn.addEventListener('touchstart', startPress, {passive: true}); btn.addEventListener('touchend', cancelPress); btn.addEventListener('touchmove', cancelPress);
+                btn.addEventListener('mousedown', startPress); btn.addEventListener('mouseup', cancelPress); btn.addEventListener('mouseleave', cancelPress);
+
+                btn.onclick = (e) => { 
+                    e.preventDefault(); 
+                    if (!isLongPress) { 
+                        currentActiveTmPresetId = p.id; localStorage.setItem('fittimer_activeTmPreset', p.id);
+                        document.getElementById('tm-input-min').value = Math.floor(p.sec / 60).toString().padStart(2, '0');
+                        document.getElementById('tm-input-sec').value = (p.sec % 60).toString().padStart(2, '0');
+                        updateTmDisplayFromInputs();
+                        renderTmPresets(); 
+                    } 
+                };
+                container.appendChild(btn);
+            });
+            const addBtn = document.createElement('button'); addBtn.onclick = () => { presetContext = 'timer'; openModalPreset(); };
+            addBtn.className = 'h-10 px-4 bg-slate-800/50 text-theme text-sm font-bold rounded-lg border border-theme/50 hover:bg-theme hover:text-white transition shrink-0 snap-center flex items-center justify-center gap-2';
+            addBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Novo'; container.appendChild(addBtn);
+        }
+
+        function openOptionsModal(id, name, context = 'hiit') { 
+            selectedOptionsPresetId = id; presetContext = context; document.getElementById('options-title').innerText = name; 
+            const m = document.getElementById('modal-options-preset'); const c = document.getElementById('modal-options-preset-content'); m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); c.classList.remove('scale-95'); 
+        }
+        function closeOptionsModal() { const m = document.getElementById('modal-options-preset'); const c = document.getElementById('modal-options-preset-content'); m.classList.add('opacity-0'); c.classList.add('scale-95'); setTimeout(() => m.classList.add('hidden'), 300); }
+        function triggerEditPreset() { closeOptionsModal(); setTimeout(() => openModalPreset(selectedOptionsPresetId), 300); }
+        function triggerDeletePreset() { closeOptionsModal(); setTimeout(() => deletePreset(selectedOptionsPresetId), 300); }
+
+        function openModalPreset(id = null) {
+            currentEditPresetId = id;
+            const title = document.getElementById('modal-preset-title'); const details = document.getElementById('modal-preset-details'); const input = document.getElementById('input-preset-name');
+            if (presetContext === 'timer') {
+                if (id) { const preset = tmPresets.find(p => p.id === id); title.innerText = 'Renomear Timer'; details.innerText = `Duração: ${formatTimeSimple(preset.sec)}`; input.value = preset.name; } 
+                else { const tM = document.getElementById('tm-input-min').value.padStart(2, '0'); const tS = document.getElementById('tm-input-sec').value.padStart(2, '0'); title.innerText = 'Salvar Novo Timer'; details.innerText = `Duração: ${tM}:${tS}`; input.value = ''; }
+            } else {
+                if (id) { const preset = myPresets.find(p => p.id === id); title.innerText = 'Renomear Treino'; details.innerText = `${formatTimeSimple(preset.work)} Ação • ${formatTimeSimple(preset.rest)} Pausa • ${preset.rounds} Séries`; input.value = preset.name; } 
+                else { const wM = document.getElementById('int-work-m').value.padStart(2, '0'); const wS = document.getElementById('int-work-s').value.padStart(2, '0'); const rM = document.getElementById('int-rest-m').value.padStart(2, '0'); const rS = document.getElementById('int-rest-s').value.padStart(2, '0'); title.innerText = 'Salvar Novo Treino'; details.innerText = `${wM}:${wS} Ação • ${rM}:${rS} Pausa`; input.value = ''; }
+            }
+            const m = document.getElementById('modal-save-preset'); const c = document.getElementById('modal-save-preset-content'); m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); c.classList.remove('scale-95'); setTimeout(() => input.focus(), 300);
+        }
+        function closeModalPreset() { const m = document.getElementById('modal-save-preset'); const c = document.getElementById('modal-save-preset-content'); m.classList.add('opacity-0'); c.classList.add('scale-95'); setTimeout(() => m.classList.add('hidden'), 300); }
+
+        function saveCurrentPreset() {
+            const input = document.getElementById('input-preset-name'); const name = input.value.trim();
+            if(!name) { input.classList.add('border-red-500', 'animate-pulse'); setTimeout(() => input.classList.remove('border-red-500', 'animate-pulse'), 1000); return; }
+            if (presetContext === 'timer') {
+                if (currentEditPresetId) { const preset = tmPresets.find(p => p.id === currentEditPresetId); if (preset) preset.name = name; currentActiveTmPresetId = currentEditPresetId; } 
+                else { const newId = 't_' + Date.now(); const m = parseInt(document.getElementById('tm-input-min').value) || 0; const s = parseInt(document.getElementById('tm-input-sec').value) || 0; tmPresets.push({ id: newId, name: name, sec: (m * 60) + s }); currentActiveTmPresetId = newId; }
+                localStorage.setItem('fittimer_activeTmPreset', currentActiveTmPresetId); localStorage.setItem(STORAGE_TM_PRESETS_KEY, JSON.stringify(tmPresets)); renderTmPresets();
+            } else {
+                if (currentEditPresetId) { const preset = myPresets.find(p => p.id === currentEditPresetId); if (preset) preset.name = name; currentActivePresetId = currentEditPresetId; } 
+                else { const newId = 'p_' + Date.now(); const w = (parseInt(document.getElementById('int-work-m').value)||0)*60 + (parseInt(document.getElementById('int-work-s').value)||0); const r = (parseInt(document.getElementById('int-rest-m').value)||0)*60 + (parseInt(document.getElementById('int-rest-s').value)||0); const wu = (parseInt(document.getElementById('int-warmup-m').value)||0)*60 + (parseInt(document.getElementById('int-warmup-s').value)||0); myPresets.push({ id: newId, name: name, work: w, rest: r, rounds: parseInt(document.getElementById('int-input-rounds').value)||0, warmup: wu }); currentActivePresetId = newId; }
+                localStorage.setItem('fittimer_activePreset', currentActivePresetId); localStorage.setItem(STORAGE_PRESETS_KEY, JSON.stringify(myPresets)); renderPresets();
+            }
+            closeModalPreset(); 
+        }
+
+        function deletePreset(id) { 
+            if (presetContext === 'timer') { tmPresets = tmPresets.filter(p => p.id !== id); localStorage.setItem(STORAGE_TM_PRESETS_KEY, JSON.stringify(tmPresets)); if(currentActiveTmPresetId === id) { currentActiveTmPresetId = null; localStorage.removeItem('fittimer_activeTmPreset'); } renderTmPresets(); } 
+            else { myPresets = myPresets.filter(p => p.id !== id); localStorage.setItem(STORAGE_PRESETS_KEY, JSON.stringify(myPresets)); if(currentActivePresetId === id) { currentActivePresetId = null; localStorage.removeItem('fittimer_activePreset'); } renderPresets(); }
+        }
+
+        // ================= LISTENERS PARA AUTO-SAVE =================
+        document.addEventListener('DOMContentLoaded', () => {
+            ['input', 'change', 'blur'].forEach(evt => {
+                // Auto-save no HIIT
+                const handleHiitManualInput = (e) => { 
+                    if (evt === 'blur' && e.target.type === 'number') e.target.value = e.target.value.padStart(2, '0');
+                    if (currentActivePresetId !== null) {
+                        const preset = myPresets.find(p => p.id === currentActivePresetId);
+                        if (preset) {
+                            preset.work = (parseInt(document.getElementById('int-work-m').value) || 0) * 60 + (parseInt(document.getElementById('int-work-s').value) || 0);
+                            preset.rest = (parseInt(document.getElementById('int-rest-m').value) || 0) * 60 + (parseInt(document.getElementById('int-rest-s').value) || 0);
+                            preset.rounds = parseInt(document.getElementById('int-input-rounds').value) || 1;
+                            preset.warmup = (parseInt(document.getElementById('int-warmup-m').value) || 0) * 60 + (parseInt(document.getElementById('int-warmup-s').value) || 0);
+                            localStorage.setItem(STORAGE_PRESETS_KEY, JSON.stringify(myPresets));
+                        }
+                    }
+                };
+                const workM = document.getElementById('int-work-m');
+                if(workM) {
+                    document.getElementById('int-work-m').addEventListener(evt, handleHiitManualInput); document.getElementById('int-work-s').addEventListener(evt, handleHiitManualInput);
+                    document.getElementById('int-rest-m').addEventListener(evt, handleHiitManualInput); document.getElementById('int-rest-s').addEventListener(evt, handleHiitManualInput);
+                    document.getElementById('int-input-rounds').addEventListener(evt, handleHiitManualInput); 
+                    document.getElementById('int-warmup-m').addEventListener(evt, handleHiitManualInput); document.getElementById('int-warmup-s').addEventListener(evt, handleHiitManualInput);
+                }
+
+                // Auto-save no Timer
+                const handleTmManualInput = (e) => {
+                    if (evt === 'blur' && e.target.type === 'number') e.target.value = e.target.value.padStart(2, '0');
+                    updateTmDisplayFromInputs();
+                };
+                const tmMin = document.getElementById('tm-input-min');
+                if(tmMin) {
+                    tmMin.addEventListener(evt, handleTmManualInput);
+                    document.getElementById('tm-input-sec').addEventListener(evt, handleTmManualInput);
+                }
+            });
+            
+            // Inicializa listas de favoritos
+            renderPresets();
+            renderTmPresets();
+            if(document.getElementById('tm-input-min')) updateTmDisplayFromInputs();
+        });
+
+        // ================= INICIALIZAÇÃO GERAL =================
         applyThemeSettings();
         renderHistory();
-        switchTab('gps'); // Inicia na aba GPS para você ver a novidade!
+        switchTab('gps');
 
     </script>
 </body>
