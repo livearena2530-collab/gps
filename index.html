@@ -57,10 +57,10 @@
 </head>
 <body id="app-body" class="flex flex-col h-[100dvh] w-full transition-colors duration-500 bg-slate-900">
 
-    <!-- Toast de Medalha -->
+    <!-- Toast de Notificação Geral e Medalha -->
     <div id="toast-medal" class="fixed top-4 left-1/2 transform -translate-x-1/2 -translate-y-[150%] bg-slate-800 border-2 border-theme p-4 rounded-2xl shadow-2xl z-50 flex items-center gap-4 transition-transform duration-500 opacity-0 pointer-events-none w-11/12 max-w-sm">
-        <div class="w-12 h-12 bg-theme/20 rounded-full flex items-center justify-center text-3xl text-theme"><i class="fa-solid fa-award"></i></div>
-        <div><p class="text-[10px] text-theme font-black uppercase tracking-widest">Nova Conquista!</p><p id="toast-medal-name" class="text-white font-bold text-lg">Iniciante</p></div>
+        <div class="w-12 h-12 bg-theme/20 rounded-full flex items-center justify-center text-3xl text-theme"><i id="toast-icon" class="fa-solid fa-award"></i></div>
+        <div><p id="toast-title" class="text-[10px] text-theme font-black uppercase tracking-widest">Nova Conquista!</p><p id="toast-medal-name" class="text-white font-bold text-lg">Iniciante</p></div>
     </div>
 
     <header class="pt-12 pb-4 px-6 flex justify-between items-center z-10 w-full shrink-0">
@@ -68,7 +68,7 @@
             <i class="fa-solid fa-bolt"></i> FitTimer
         </h1>
         <div class="flex gap-4 items-center">
-            <i id="cloud-icon" class="fa-solid fa-cloud text-slate-600 text-lg transition-colors"></i>
+            <i id="cloud-icon" class="fa-solid fa-cloud text-slate-600 text-lg transition-colors" title="Status da Nuvem"></i>
             <button id="btn-sound" onclick="toggleSound()" class="text-slate-300 hover:text-white text-xl transition-colors p-2"><i id="icon-sound" class="fa-solid fa-volume-high"></i></button>
             <button onclick="openSettingsModal()" class="text-slate-300 hover:text-white text-xl transition-colors p-2"><i class="fa-solid fa-gear"></i></button>
         </div>
@@ -151,7 +151,12 @@
                 <h2 class="text-2xl font-black text-white">Meu Perfil</h2>
                 <div class="flex items-center gap-1 text-orange-400 font-bold text-sm bg-orange-400/10 px-3 py-1 rounded-full border border-orange-400/20 shadow-lg"><i class="fa-solid fa-fire"></i> <span id="hist-streak">0 Dias</span></div>
             </div>
-            <button id="btn-login" class="w-full py-4 mb-6 bg-slate-800 text-white font-bold rounded-2xl border border-blue-500/50 shadow-lg flex items-center justify-center gap-3 hover:bg-slate-700 transition"><i class="fa-brands fa-google text-blue-400 text-xl"></i> Conectar Nuvem</button>
+            
+            <!-- Botão de Login Inteligente -->
+            <button id="btn-login" class="w-full py-4 mb-6 bg-slate-800 text-white font-bold rounded-2xl border border-blue-500/50 shadow-lg flex items-center justify-center gap-3 hover:bg-slate-700 transition">
+                <i class="fa-brands fa-google text-blue-400 text-xl"></i> Conectar Nuvem
+            </button>
+            
             <div class="grid grid-cols-2 gap-3 w-full mb-6">
                 <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700 flex flex-col items-center justify-center text-center"><span class="text-4xl font-black text-white" id="hist-total-workouts">0</span><span class="text-[10px] text-theme font-bold uppercase mt-1 tracking-wider">Treinos</span></div>
                 <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700 flex flex-col items-center justify-center text-center"><span class="text-4xl font-black text-white" id="hist-total-minutes">0</span><span class="text-[10px] text-blue-400 font-bold uppercase mt-1 tracking-wider">Minutos Totais</span></div>
@@ -191,9 +196,8 @@
                 <div class="flex justify-between items-center mb-5"><h2 class="text-xl font-black text-white"><i class="fa-solid fa-sliders mr-2"></i> Configurações</h2><button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white text-2xl"><i class="fa-solid fa-xmark"></i></button></div>
                 <div class="mb-4"><label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Cor do Aplicativo</label><div class="flex justify-between gap-2"><button onclick="setTheme('emerald')" class="w-10 h-10 rounded-full bg-emerald-500 border-2 border-transparent focus:border-white transition shadow-lg"></button><button onclick="setTheme('cyan')" class="w-10 h-10 rounded-full bg-cyan-500 border-2 border-transparent focus:border-white transition shadow-lg"></button><button onclick="setTheme('orange')" class="w-10 h-10 rounded-full bg-orange-500 border-2 border-transparent focus:border-white transition shadow-lg"></button><button onclick="setTheme('purple')" class="w-10 h-10 rounded-full bg-purple-500 border-2 border-transparent focus:border-white transition shadow-lg"></button></div></div>
                 <div class="mb-4">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-blue-400"></i> API do Gemini (Treinador IA)</label>
-                    <input type="password" id="input-gemini-key" placeholder="Cole sua chave aqui (Opcional)" class="w-full bg-slate-900 text-white px-3 py-2 rounded-xl outline-none border border-slate-700 focus:border-blue-500 text-sm transition-all mb-1">
-                    <p class="text-[9px] text-slate-500">Deixe em branco para usar o cérebro offline.</p>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-blue-400"></i> API do Gemini (IA)</label>
+                    <input type="password" id="input-gemini-key" placeholder="Sua chave (Opcional)" class="w-full bg-slate-900 text-white px-3 py-2 rounded-xl outline-none border border-slate-700 focus:border-blue-500 text-sm transition-all mb-1">
                 </div>
                 <div class="mb-4">
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Voz e Áudio</label>
@@ -204,13 +208,11 @@
             </div>
         </div>
 
-        <!-- NOVO: MODAL DA IA GEMINI -->
         <div id="modal-gemini" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
             <div class="bg-slate-800 p-6 rounded-3xl w-full max-w-sm border border-blue-500/50 shadow-[0_0_30px_rgba(59,130,246,0.2)] transform scale-95 transition-transform duration-300 relative overflow-hidden" id="modal-gemini-content">
-                <div class="absolute -top-20 -right-20 w-40 h-40 bg-blue-500/20 blur-[50px] rounded-full pointer-events-none"></div>
-                <div class="flex items-center gap-3 mb-4 relative z-10"><div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-xl border border-blue-500/30"><i class="fa-solid fa-wand-magic-sparkles"></i></div><div><h3 class="text-white text-lg font-black leading-tight">Treinador Gemini</h3><p class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">Inteligência Artificial</p></div></div>
+                <div class="flex items-center gap-3 mb-4 relative z-10"><div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-xl border border-blue-500/30"><i class="fa-solid fa-wand-magic-sparkles"></i></div><div><h3 class="text-white text-lg font-black leading-tight">Treinador IA</h3><p class="text-[10px] text-blue-400 font-bold uppercase tracking-widest">Inteligência Artificial</p></div></div>
                 <p class="text-slate-300 text-sm mb-4 relative z-10">Diga seu objetivo e tempo disponível. Eu calculo e monto o timer para você.</p>
-                <textarea id="input-gemini-prompt" rows="3" placeholder="Ex: Treino super intenso de perna de 15 minutos." class="w-full bg-slate-900 text-white p-4 rounded-xl outline-none border border-slate-700 focus:border-blue-500 text-sm transition-all mb-4 resize-none relative z-10"></textarea>
+                <textarea id="input-gemini-prompt" rows="3" placeholder="Ex: Treino intenso de perna de 15 minutos." class="w-full bg-slate-900 text-white p-4 rounded-xl outline-none border border-slate-700 focus:border-blue-500 text-sm transition-all mb-4 resize-none relative z-10"></textarea>
                 <div class="flex justify-end gap-3 w-full relative z-10"><button onclick="closeGeminiModal()" class="flex-1 py-3 text-slate-300 bg-slate-700 rounded-xl font-bold hover:bg-slate-600 transition">Cancelar</button><button id="btn-generate-ai" onclick="generateAIWorkout()" class="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold shadow-[0_4px_15px_rgba(37,99,235,0.4)] transition flex justify-center items-center gap-2"><span>Gerar</span> <i class="fa-solid fa-bolt"></i></button></div>
             </div>
         </div>
@@ -224,6 +226,7 @@
         <button onclick="switchTab('history')" id="tab-history" class="nav-btn flex flex-col items-center justify-center w-16 py-2 text-slate-500 hover:text-slate-300 transition-colors"><i class="fa-solid fa-chart-simple text-xl mb-1"></i><span class="text-[9px] font-bold tracking-wider">PERFIL</span></button>
     </nav>
 
+    <!-- ================= LÓGICA E UI DO APLICATIVO ================= -->
     <script>
         window.triggerCloudSync = () => {}; 
         let currentView = 'stopwatch', isSoundOn = true, isVoiceOn = JSON.parse(localStorage.getItem('fittimer_voice')) !== false, wakeLock = null, currentTheme = localStorage.getItem('fittimer_theme') || 'emerald', selectedSound = localStorage.getItem('fittimer_sound') || 'beep';
@@ -234,8 +237,7 @@
             document.documentElement.style.setProperty('--theme-light', colors.light); document.documentElement.style.setProperty('--theme-base', colors.base); document.documentElement.style.setProperty('--theme-dark', colors.dark);
             document.querySelectorAll('.indicator-sound').forEach(el => el.classList.add('hidden')); document.querySelectorAll('#modal-settings-content button[id^="btn-sound"]').forEach(el => el.classList.replace('border-theme', 'border-transparent'));
             const activeSoundBtn = document.getElementById(`btn-sound-${selectedSound}`); if(activeSoundBtn) { activeSoundBtn.classList.replace('border-transparent', 'border-theme'); activeSoundBtn.querySelector('.indicator-sound').classList.remove('hidden'); }
-            updateVoiceUI();
-            document.getElementById('input-gemini-key').value = localStorage.getItem('fittimer_gemini_key') || '';
+            updateVoiceUI(); document.getElementById('input-gemini-key').value = localStorage.getItem('fittimer_gemini_key') || '';
         }
 
         function setTheme(theme) { currentTheme = theme; localStorage.setItem('fittimer_theme', theme); applyThemeSettings(); window.triggerCloudSync(); }
@@ -244,48 +246,45 @@
         function updateVoiceUI() { const dot = document.getElementById('toggle-voice-btn'); if (isVoiceOn) { dot.classList.replace('translate-x-0', 'translate-x-6'); dot.classList.replace('bg-slate-500', 'bg-theme'); } else { dot.classList.replace('translate-x-6', 'translate-x-0'); dot.classList.replace('bg-theme', 'bg-slate-500'); } }
 
         function openSettingsModal() { const m = document.getElementById('modal-settings'); const c = document.getElementById('modal-settings-content'); m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); c.classList.remove('scale-95'); }
-        function closeSettingsModal() { 
-            localStorage.setItem('fittimer_gemini_key', document.getElementById('input-gemini-key').value.trim()); window.triggerCloudSync();
-            const m = document.getElementById('modal-settings'); const c = document.getElementById('modal-settings-content'); m.classList.add('opacity-0'); c.classList.add('scale-95'); setTimeout(() => m.classList.add('hidden'), 300); 
+        function closeSettingsModal() { localStorage.setItem('fittimer_gemini_key', document.getElementById('input-gemini-key').value.trim()); window.triggerCloudSync(); const m = document.getElementById('modal-settings'); const c = document.getElementById('modal-settings-content'); m.classList.add('opacity-0'); c.classList.add('scale-95'); setTimeout(() => m.classList.add('hidden'), 300); }
+
+        function showSystemToast(text, isError = false) {
+            const toast = document.getElementById('toast-medal');
+            document.getElementById('toast-title').innerText = isError ? "Atenção" : "Sistema";
+            document.getElementById('toast-icon').className = isError ? "fa-solid fa-triangle-exclamation" : "fa-solid fa-info-circle";
+            document.getElementById('toast-medal-name').innerText = text;
+            toast.classList.remove('-translate-y-[150%]', 'opacity-0');
+            setTimeout(() => toast.classList.add('-translate-y-[150%]', 'opacity-0'), 4000);
         }
 
-        // ================= INTELIGÊNCIA ARTIFICIAL (GEMINI) =================
+        // ================= IA GEMINI =================
         function openGeminiModal() { const m = document.getElementById('modal-gemini'); const c = document.getElementById('modal-gemini-content'); m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); c.classList.remove('scale-95'); setTimeout(() => document.getElementById('input-gemini-prompt').focus(), 300); }
         function closeGeminiModal() { const m = document.getElementById('modal-gemini'); const c = document.getElementById('modal-gemini-content'); m.classList.add('opacity-0'); c.classList.add('scale-95'); setTimeout(() => m.classList.add('hidden'), 300); }
-
         async function generateAIWorkout() {
             const promptInput = document.getElementById('input-gemini-prompt'); const btn = document.getElementById('btn-generate-ai'); const promptText = promptInput.value.trim();
             if(!promptText) { promptInput.classList.add('border-red-500'); setTimeout(()=>promptInput.classList.remove('border-red-500'), 1000); return; }
-            
-            const apiKey = localStorage.getItem('fittimer_gemini_key') || '';
-            const originalBtnHtml = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Pensando...'; btn.disabled = true;
-
+            const apiKey = localStorage.getItem('fittimer_gemini_key') || ''; const originalBtnHtml = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Pensando...'; btn.disabled = true;
             if(!apiKey) {
                 setTimeout(() => {
                     let wM=0, wS=30, rM=0, rS=15, r=8, warm=1; const t = promptText.toLowerCase();
                     if(t.includes('rápido')) { wS=20; rS=10; r=10; } if(t.includes('perna') || t.includes('pesado')) { wS=45; rS=15; r=12; }
-                    applyAIPreset({ workM: wM, workS: wS, restM: rM, restS: rS, rounds: r, warmM: warm, warmS: 0 });
-                    btn.innerHTML = originalBtnHtml; btn.disabled = false; closeGeminiModal(); speakVoiceCoach("Treino sugerido montado para você!");
+                    applyAIPreset({ workM: wM, workS: wS, restM: rM, restS: rS, rounds: r, warmM: warm, warmS: 0 }); btn.innerHTML = originalBtnHtml; btn.disabled = false; closeGeminiModal(); speakVoiceCoach("Treino sugerido montado para você!");
                 }, 1000); return;
             }
-
             try {
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
                 const sysPrompt = `Você é um personal trainer. O usuário quer um timer HIIT. RETORNE APENAS UM JSON VÁLIDO neste formato: {"workM":0,"workS":0,"restM":0,"restS":0,"rounds":0,"warmM":0,"warmS":0}. Calcule para bater com a intenção do usuário. Sem markdown. Pedido: ${promptText}`;
                 const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: sysPrompt }] }] }) });
                 const data = await response.json(); if(data.error) throw new Error(data.error.message);
-                
                 const cleanJsonStr = data.candidates[0].content.parts[0].text.trim().replace(/```json/g, '').replace(/```/g, '');
                 applyAIPreset(JSON.parse(cleanJsonStr)); closeGeminiModal(); speakVoiceCoach("Treino gerado pela Inteligência Artificial!");
             } catch(e) { alert("Falha na IA. Verifique sua chave API do Gemini nas Configurações."); } finally { btn.innerHTML = originalBtnHtml; btn.disabled = false; }
         }
-
         function applyAIPreset(d) {
             document.getElementById('int-work-m').value = (d.workM||0).toString().padStart(2, '0'); document.getElementById('int-work-s').value = (d.workS||0).toString().padStart(2, '0');
             document.getElementById('int-rest-m').value = (d.restM||0).toString().padStart(2, '0'); document.getElementById('int-rest-s').value = (d.restS||0).toString().padStart(2, '0');
             document.getElementById('int-warm-m').value = (d.warmM||0).toString().padStart(2, '0'); document.getElementById('int-warm-s').value = (d.warmS||0).toString().padStart(2, '0');
-            document.getElementById('int-input-rounds').value = d.rounds || 1;
-            currentActivePresetId = null; renderPresets();
+            document.getElementById('int-input-rounds').value = d.rounds || 1; currentActivePresetId = null; renderPresets();
             document.getElementById('int-status').innerText = "IA GEMINI PRONTA ✨"; document.getElementById('int-status').className = "text-lg sm:text-xl font-black uppercase tracking-widest text-blue-400";
         }
 
@@ -305,7 +304,7 @@
         const allBadges = [ { id: 'b_first', icon: 'fa-star', name: 'Iniciante', desc: '1º Treino' }, { id: 'b_10', icon: 'fa-medal', name: 'Atleta', desc: '10 Treinos' }, { id: 'b_100', icon: 'fa-shield-halved', name: 'Centurião', desc: '100 Treinos' }, { id: 'b_streak7', icon: 'fa-fire-flame-curved', name: 'Foco Total', desc: '7 Dias Seguidos' }, { id: 'b_early', icon: 'fa-sun', name: 'Madrugador', desc: 'Treinou 04h-07h' }, { id: 'b_night', icon: 'fa-moon', name: 'Coruja', desc: 'Treinou 22h-03h' } ];
         
         function checkBadges(dateStr) { const date = new Date(dateStr); const hour = date.getHours(); let newUnlock = null; if(!badgesData.b_first && appHistory.length >= 1) { badgesData.b_first = true; newUnlock = 'b_first'; } if(!badgesData.b_10 && appHistory.length >= 10) { badgesData.b_10 = true; newUnlock = 'b_10'; } if(!badgesData.b_100 && appHistory.length >= 100) { badgesData.b_100 = true; newUnlock = 'b_100'; } if(!badgesData.b_streak7 && currentStreak >= 7) { badgesData.b_streak7 = true; newUnlock = 'b_streak7'; } if(!badgesData.b_early && hour >= 4 && hour <= 7) { badgesData.b_early = true; newUnlock = 'b_early'; } if(!badgesData.b_night && (hour >= 22 || hour <= 3)) { badgesData.b_night = true; newUnlock = 'b_night'; } if(newUnlock) { localStorage.setItem('fittimer_badges', JSON.stringify(badgesData)); renderBadges(); const bInfo = allBadges.find(b => b.id === newUnlock); if(bInfo) showToastMedal(bInfo.name); } }
-        function showToastMedal(name) { const toast = document.getElementById('toast-medal'); document.getElementById('toast-medal-name').innerText = name; toast.classList.remove('-translate-y-[150%]', 'opacity-0'); if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.2 }, zIndex: 1000 }); setTimeout(() => { toast.classList.add('-translate-y-[150%]', 'opacity-0'); }, 4000); }
+        function showToastMedal(name) { document.getElementById('toast-title').innerText = "Nova Conquista!"; document.getElementById('toast-icon').className = "fa-solid fa-award"; document.getElementById('toast-medal-name').innerText = name; const toast = document.getElementById('toast-medal'); toast.classList.remove('-translate-y-[150%]', 'opacity-0'); if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.2 }, zIndex: 1000 }); setTimeout(() => { toast.classList.add('-translate-y-[150%]', 'opacity-0'); }, 4000); }
         function renderBadges() { const container = document.getElementById('badges-container'); container.innerHTML = ''; allBadges.forEach(b => { const unlocked = badgesData[b.id]; const bg = unlocked ? 'bg-theme/20 border-theme' : 'bg-slate-800 border-slate-700 opacity-50 grayscale'; const iconColor = unlocked ? 'text-theme' : 'text-slate-500'; container.innerHTML += `<div class="flex flex-col items-center text-center p-2 rounded-xl border ${bg} transition-all"><i class="fa-solid ${b.icon} ${iconColor} text-2xl mb-1 drop-shadow-md"></i><span class="text-[9px] font-bold text-white uppercase">${b.name}</span><span class="text-[8px] text-slate-400">${b.desc}</span></div>`; }); }
         function saveToHistory(type, minutes) { const entry = { id: Date.now(), date: new Date().toISOString(), type: type, duration: minutes }; appHistory.unshift(entry); if(appHistory.length > 100) appHistory.pop(); localStorage.setItem('fittimer_history', JSON.stringify(appHistory)); renderHistory(); checkBadges(entry.date); window.triggerCloudSync(); }
         
@@ -339,7 +338,6 @@
                 btn.addEventListener('touchstart', startPress, {passive: true}); btn.addEventListener('touchend', cancelPress); btn.addEventListener('touchmove', cancelPress); btn.addEventListener('mousedown', startPress); btn.addEventListener('mouseup', cancelPress); btn.addEventListener('mouseleave', cancelPress);
                 btn.onclick = (e) => { e.preventDefault(); if (!isLongPress) { currentPresetMode = 'hiit'; currentActivePresetId = p.id; setHiitPreset(p); renderPresets(); } }; container.appendChild(btn);
             });
-            // Adicionado o Botão da Inteligência Artificial ao Lado do Novo
             const addAIBtn = document.createElement('button'); addAIBtn.onclick = openGeminiModal; addAIBtn.className = 'py-2 px-4 bg-slate-800/50 text-blue-400 text-sm font-bold rounded-lg border border-blue-500/50 active:bg-blue-600 active:text-white transition shrink-0 snap-center flex items-center gap-2'; addAIBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Treinador IA ✨'; container.appendChild(addAIBtn);
             const addBtn = document.createElement('button'); addBtn.onclick = () => { currentPresetMode = 'hiit'; openModalPreset(); }; addBtn.className = 'py-2 px-4 bg-slate-800/50 text-theme text-sm font-bold rounded-lg border border-theme/50 active:bg-theme active:text-white transition shrink-0 snap-center flex items-center gap-2'; addBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Novo'; container.appendChild(addBtn);
         }
@@ -377,7 +375,24 @@
 
         let tmTotalSeconds = 0, tmTimeRemaining = 0, tmInterval = null, tmIsRunning = false;
         function setTimerPreset(p) { const m = Math.floor(p.totalSec / 60); const s = p.totalSec % 60; document.getElementById('tm-input-min').value = m; document.getElementById('tm-input-sec').value = s; updateTmDisplayFromInputs(); }
-        function updateTmDisplayFromInputs() { if(!tmIsRunning) { tmTotalSeconds = ((parseInt(document.getElementById('tm-input-min').value) || 0) * 60) + (parseInt(document.getElementById('tm-input-sec').value) || 0); tmTimeRemaining = tmTotalSeconds; document.getElementById('tm-display').innerHTML = formatTimeSimple(tmTimeRemaining); updateSvgRing('tm-progress-ring', tmTimeRemaining, tmTotalSeconds); currentActivePresetId = null; renderTimerPresets(); } }
+        function updateTmDisplayFromInputs() { 
+            if(!tmIsRunning) { 
+                tmTotalSeconds = ((parseInt(document.getElementById('tm-input-min').value) || 0) * 60) + (parseInt(document.getElementById('tm-input-sec').value) || 0); 
+                tmTimeRemaining = tmTotalSeconds; 
+                document.getElementById('tm-display').innerHTML = formatTimeSimple(tmTimeRemaining); 
+                updateSvgRing('tm-progress-ring', tmTimeRemaining, tmTotalSeconds); 
+                
+                // === AUTO-SAVE TIMER ===
+                if (currentActivePresetId && currentPresetMode === 'timer') {
+                    const pIndex = myTimerPresets.findIndex(p => p.id === currentActivePresetId);
+                    if (pIndex > -1) {
+                        myTimerPresets[pIndex].totalSec = tmTotalSeconds;
+                        localStorage.setItem('fittimer_timerPresets', JSON.stringify(myTimerPresets));
+                        window.triggerCloudSync();
+                    }
+                }
+            } 
+        }
         ['tm-input-min', 'tm-input-sec'].forEach(id => document.getElementById(id).addEventListener('input', updateTmDisplayFromInputs));
         function tmStartPause() {
             if (tmIsRunning) { clearInterval(tmInterval); tmIsRunning = false; releaseWakeLock(); document.getElementById('tm-btn-start-pause').classList.replace('bg-amber-600', 'bg-theme'); document.getElementById('tm-icon-start-pause').classList.replace('fa-pause', 'fa-play'); } 
@@ -392,7 +407,30 @@
 
         let intWorkSec = 40, intRestSec = 20, intTotalRounds = 8, intWarmupSec = 0, intCurrentRound = 1, intState = 'idle', intTimeRemaining = 0, intPhaseTotalTime = 0, intInterval = null, intIsRunning = false;
         function setHiitPreset(p) { document.getElementById('int-work-m').value = p.workM.toString().padStart(2, '0'); document.getElementById('int-work-s').value = p.workS.toString().padStart(2, '0'); document.getElementById('int-rest-m').value = p.restM.toString().padStart(2, '0'); document.getElementById('int-rest-s').value = p.restS.toString().padStart(2, '0'); document.getElementById('int-warm-m').value = p.warmM.toString().padStart(2, '0'); document.getElementById('int-warm-s').value = p.warmS.toString().padStart(2, '0'); document.getElementById('int-input-rounds').value = p.rounds; }
-        ['int-work-m', 'int-work-s', 'int-rest-m', 'int-rest-s', 'int-warm-m', 'int-warm-s', 'int-input-rounds'].forEach(id => { document.getElementById(id).addEventListener('input', () => { if (currentActivePresetId && currentPresetMode === 'hiit') { currentActivePresetId = null; renderPresets(); document.getElementById('int-status').innerText = "CONFIGURAÇÃO"; document.getElementById('int-status').className = "text-lg sm:text-xl font-bold uppercase tracking-widest text-slate-400"; } }); });
+        
+        ['int-work-m', 'int-work-s', 'int-rest-m', 'int-rest-s', 'int-warm-m', 'int-warm-s', 'int-input-rounds'].forEach(id => { 
+            document.getElementById(id).addEventListener('input', () => { 
+                // === AUTO-SAVE HIIT ===
+                if (currentActivePresetId && currentPresetMode === 'hiit') { 
+                    const pIndex = myPresets.findIndex(p => p.id === currentActivePresetId);
+                    if (pIndex > -1) {
+                        myPresets[pIndex].workM = parseInt(document.getElementById('int-work-m').value) || 0;
+                        myPresets[pIndex].workS = parseInt(document.getElementById('int-work-s').value) || 0;
+                        myPresets[pIndex].restM = parseInt(document.getElementById('int-rest-m').value) || 0;
+                        myPresets[pIndex].restS = parseInt(document.getElementById('int-rest-s').value) || 0;
+                        myPresets[pIndex].warmM = parseInt(document.getElementById('int-warm-m').value) || 0;
+                        myPresets[pIndex].warmS = parseInt(document.getElementById('int-warm-s').value) || 0;
+                        myPresets[pIndex].rounds = parseInt(document.getElementById('int-input-rounds').value) || 1;
+                        localStorage.setItem('fittimer_customPresets', JSON.stringify(myPresets));
+                        window.triggerCloudSync();
+                    }
+                } else {
+                    document.getElementById('int-status').innerText = "CONFIGURAÇÃO"; 
+                    document.getElementById('int-status').className = "text-lg sm:text-xl font-bold uppercase tracking-widest text-slate-400"; 
+                }
+            }); 
+        });
+
         function updateIntBgColor() { if (currentView !== 'interval') return; const bodyBg = document.getElementById('app-body'); bodyBg.className = 'flex flex-col h-[100dvh] w-full transition-colors duration-500'; if (intState === 'prep' || intState === 'warmup') bodyBg.classList.add('bg-prep'); else if (intState === 'work') bodyBg.classList.add('bg-work'); else if (intState === 'rest') bodyBg.classList.add('bg-rest'); else bodyBg.classList.add('bg-slate-900'); }
         function intStartPause() {
             if (intIsRunning) { clearInterval(intInterval); intIsRunning = false; releaseWakeLock(); document.getElementById('int-btn-start-pause').classList.replace('bg-amber-600', 'bg-theme'); document.getElementById('int-icon-start-pause').classList.replace('fa-pause', 'fa-play'); } 
@@ -428,7 +466,7 @@
     <!-- FIREBASE & SINCRONIZAÇÃO NUVEM -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+        import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -440,15 +478,54 @@
             appId: "1:346958392670:web:d88ac177a10fb71638b3cf"
         };
 
-        const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app); const provider = new GoogleAuthProvider(); let syncTimeout = null;
-        window.firebaseLogin = () => signInWithPopup(auth, provider).catch(err => alert("Erro ao logar: " + err.message)); window.firebaseLogout = () => signOut(auth);
+        const app = initializeApp(firebaseConfig); 
+        const auth = getAuth(app); 
+        const db = getFirestore(app); 
+        const provider = new GoogleAuthProvider(); 
+        let syncTimeout = null;
+        
+        // Verificação Robusta Pós-Redirecionamento do Login
+        getRedirectResult(auth).catch((error) => {
+            console.error("Erro na autenticação:", error);
+            showSystemToast("Falha no login: " + error.message, true);
+            const loginBtn = document.getElementById('btn-login');
+            loginBtn.innerHTML = `<i class="fa-brands fa-google text-blue-400 text-xl"></i> Conectar Nuvem`;
+            loginBtn.disabled = false;
+        });
 
+        // Funções de Login com Proteção de Cliques (Anti-Spam)
+        window.firebaseLogin = () => {
+            const loginBtn = document.getElementById('btn-login');
+            loginBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-xl text-blue-400"></i> Conectando...`;
+            loginBtn.disabled = true; // Trava o botão para evitar múltiplos cliques
+            signInWithRedirect(auth, provider);
+        };
+        
+        window.firebaseLogout = () => {
+            const loginBtn = document.getElementById('btn-login');
+            loginBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-xl text-red-400"></i> Desconectando...`;
+            loginBtn.disabled = true;
+            signOut(auth).then(() => {
+                window.location.reload(); // Recarrega a página ao sair para limpar os dados seguros
+            });
+        };
+
+        // Escuta o Estado de Autenticação (Para trocar o botão)
         onAuthStateChanged(auth, async (user) => {
-            const cloudIcon = document.getElementById('cloud-icon'); const loginBtn = document.getElementById('btn-login');
+            const cloudIcon = document.getElementById('cloud-icon'); 
+            const loginBtn = document.getElementById('btn-login');
+            
             if (user) {
+                // Usuário Logado - Muda a Interface do Botão para "Sair" (Logout)
                 cloudIcon.className = "fa-solid fa-cloud text-theme text-lg transition-colors";
-                loginBtn.innerHTML = `<i class="fa-brands fa-google mr-2 text-white"></i>Sair (${user.email.split('@')[0]})`; loginBtn.className = "w-full py-4 mb-6 bg-red-500/20 text-red-400 font-bold rounded-2xl border border-red-500/50 shadow-lg flex items-center justify-center gap-3 hover:bg-red-500/30 transition"; loginBtn.onclick = window.firebaseLogout;
+                loginBtn.innerHTML = `<i class="fa-solid fa-right-from-bracket mr-2 text-white"></i>Sair da Conta (${user.email.split('@')[0]})`; 
+                loginBtn.className = "w-full py-4 mb-6 bg-red-500/20 text-red-400 font-bold rounded-2xl border border-red-500/50 shadow-lg flex items-center justify-center gap-3 hover:bg-red-500/30 transition"; 
+                loginBtn.onclick = window.firebaseLogout;
+                loginBtn.disabled = false;
+                
                 cloudIcon.classList.add('animate-pulse', 'text-blue-400');
+                
+                // Baixa os dados da Nuvem
                 try {
                     const docSnap = await getDoc(doc(db, "users", user.uid));
                     if (docSnap.exists()) {
@@ -463,18 +540,25 @@
                             if(data.settings.voice !== undefined) localStorage.setItem('fittimer_voice', data.settings.voice);
                             if(data.settings.geminiKey) localStorage.setItem('fittimer_gemini_key', data.settings.geminiKey);
                         }
-                        window.location.reload(); 
                     }
-                } catch(e) {} cloudIcon.classList.remove('animate-pulse', 'text-blue-400');
+                } catch(e) {} 
+                cloudIcon.classList.remove('animate-pulse', 'text-blue-400');
             } else {
+                // Ninguém Logado - Mantém o botão de "Conectar" normal
                 cloudIcon.className = "fa-solid fa-cloud text-slate-600 text-lg transition-colors";
-                loginBtn.innerHTML = `<i class="fa-brands fa-google text-blue-400 text-xl"></i> Conectar Nuvem`; loginBtn.className = "w-full py-4 mb-6 bg-slate-800 text-white font-bold rounded-2xl border border-blue-500/50 shadow-lg flex items-center justify-center gap-3 hover:bg-slate-700 transition"; loginBtn.onclick = window.firebaseLogin;
+                loginBtn.innerHTML = `<i class="fa-brands fa-google text-blue-400 text-xl"></i> Conectar Nuvem`; 
+                loginBtn.className = "w-full py-4 mb-6 bg-slate-800 text-white font-bold rounded-2xl border border-blue-500/50 shadow-lg flex items-center justify-center gap-3 hover:bg-slate-700 transition"; 
+                loginBtn.onclick = window.firebaseLogin;
+                loginBtn.disabled = false;
             }
         });
 
+        // Sincronização Automática Oculta
         window.triggerCloudSync = () => {
             if(!auth.currentUser) return;
-            const cloudIcon = document.getElementById('cloud-icon'); cloudIcon.className = "fa-solid fa-cloud text-blue-400 text-lg animate-pulse transition-colors";
+            const cloudIcon = document.getElementById('cloud-icon'); 
+            cloudIcon.className = "fa-solid fa-cloud text-blue-400 text-lg animate-pulse transition-colors";
+            
             clearTimeout(syncTimeout);
             syncTimeout = setTimeout(async () => {
                 try {
@@ -492,7 +576,9 @@
                         lastSync: new Date().toISOString()
                     }, { merge: true });
                     cloudIcon.className = "fa-solid fa-cloud text-theme text-lg transition-colors";
-                } catch(e) { cloudIcon.className = "fa-solid fa-cloud text-red-500 text-lg transition-colors"; }
+                } catch(e) { 
+                    cloudIcon.className = "fa-solid fa-cloud text-red-500 text-lg transition-colors"; 
+                }
             }, 1500); 
         };
     </script>
