@@ -1262,6 +1262,52 @@
             { id: 'tdef3', name: 'Descanso Curto', sec: 45 }
         ];
 
+        // ================= GERENCIAMENTO DE ESTADO E AUTO-SAVE =================
+        function saveHiitState() {
+            if (intIsRunning) return; // Não salva se estiver rodando
+            const wM = parseInt(document.getElementById('int-work-m').value) || 0;
+            const wS = parseInt(document.getElementById('int-work-s').value) || 0;
+            const rM = parseInt(document.getElementById('int-rest-m').value) || 0;
+            const rS = parseInt(document.getElementById('int-rest-s').value) || 0;
+            const ro = parseInt(document.getElementById('int-input-rounds').value) || 1;
+            const wuM = parseInt(document.getElementById('int-warmup-m').value) || 0;
+            const wuS = parseInt(document.getElementById('int-warmup-s').value) || 0;
+
+            // Salva um backup geral
+            const config = { work: wM*60 + wS, rest: rM*60 + rS, rounds: ro, warmup: wuM*60 + wuS };
+            localStorage.setItem('fittimer_lastConfig', JSON.stringify(config));
+
+            // Salva diretamente na modalidade selecionada (se houver)
+            if (currentActivePresetId !== null) {
+                const preset = myPresets.find(p => p.id === currentActivePresetId);
+                if (preset) {
+                    preset.work = config.work;
+                    preset.rest = config.rest;
+                    preset.rounds = config.rounds;
+                    preset.warmup = config.warmup;
+                    localStorage.setItem(STORAGE_PRESETS_KEY, JSON.stringify(myPresets));
+                }
+            }
+        }
+
+        function saveTimerState() {
+            if (tmIsRunning) return;
+            const m = parseInt(document.getElementById('tm-input-min').value) || 0;
+            const s = parseInt(document.getElementById('tm-input-sec').value) || 0;
+            const total = m * 60 + s;
+            
+            localStorage.setItem('fittimer_lastTmSec', total);
+
+            if (currentActiveTmPresetId !== null) {
+                const preset = tmPresets.find(p => p.id === currentActiveTmPresetId);
+                if (preset) {
+                    preset.sec = total;
+                    localStorage.setItem(STORAGE_TM_PRESETS_KEY, JSON.stringify(tmPresets));
+                }
+            }
+            updateTmDisplayFromInputs();
+        }
+
         function renderPresets() {
             const container = document.getElementById('int-presets'); if(!container) return; container.innerHTML = '';
             myPresets.forEach(p => {
@@ -1285,6 +1331,7 @@
                         document.getElementById('int-rest-m').value = Math.floor(p.rest/60).toString().padStart(2, '0'); document.getElementById('int-rest-s').value = (p.rest%60).toString().padStart(2, '0');
                         document.getElementById('int-input-rounds').value = p.rounds; 
                         document.getElementById('int-warmup-m').value = Math.floor(p.warmup/60).toString().padStart(2, '0'); document.getElementById('int-warmup-s').value = (p.warmup%60).toString().padStart(2, '0');
+                        saveHiitState();
                         renderPresets(); 
                     } 
                 };
@@ -1316,7 +1363,7 @@
                         currentActiveTmPresetId = p.id; localStorage.setItem('fittimer_activeTmPreset', p.id);
                         document.getElementById('tm-input-min').value = Math.floor(p.sec / 60).toString().padStart(2, '0');
                         document.getElementById('tm-input-sec').value = (p.sec % 60).toString().padStart(2, '0');
-                        updateTmDisplayFromInputs();
+                        saveTimerState();
                         renderTmPresets(); 
                     } 
                 };
@@ -1369,53 +1416,84 @@
             else { myPresets = myPresets.filter(p => p.id !== id); localStorage.setItem(STORAGE_PRESETS_KEY, JSON.stringify(myPresets)); if(currentActivePresetId === id) { currentActivePresetId = null; localStorage.removeItem('fittimer_activePreset'); } renderPresets(); }
         }
 
-        // ================= LISTENERS PARA AUTO-SAVE =================
-        document.addEventListener('DOMContentLoaded', () => {
-            ['input', 'change', 'blur'].forEach(evt => {
-                // Auto-save no HIIT
-                const handleHiitManualInput = (e) => { 
-                    if (evt === 'blur' && e.target.type === 'number') e.target.value = e.target.value.padStart(2, '0');
-                    if (currentActivePresetId !== null) {
-                        const preset = myPresets.find(p => p.id === currentActivePresetId);
-                        if (preset) {
-                            preset.work = (parseInt(document.getElementById('int-work-m').value) || 0) * 60 + (parseInt(document.getElementById('int-work-s').value) || 0);
-                            preset.rest = (parseInt(document.getElementById('int-rest-m').value) || 0) * 60 + (parseInt(document.getElementById('int-rest-s').value) || 0);
-                            preset.rounds = parseInt(document.getElementById('int-input-rounds').value) || 1;
-                            preset.warmup = (parseInt(document.getElementById('int-warmup-m').value) || 0) * 60 + (parseInt(document.getElementById('int-warmup-s').value) || 0);
-                            localStorage.setItem(STORAGE_PRESETS_KEY, JSON.stringify(myPresets));
-                        }
-                    }
-                };
-                const workM = document.getElementById('int-work-m');
-                if(workM) {
-                    document.getElementById('int-work-m').addEventListener(evt, handleHiitManualInput); document.getElementById('int-work-s').addEventListener(evt, handleHiitManualInput);
-                    document.getElementById('int-rest-m').addEventListener(evt, handleHiitManualInput); document.getElementById('int-rest-s').addEventListener(evt, handleHiitManualInput);
-                    document.getElementById('int-input-rounds').addEventListener(evt, handleHiitManualInput); 
-                    document.getElementById('int-warmup-m').addEventListener(evt, handleHiitManualInput); document.getElementById('int-warmup-s').addEventListener(evt, handleHiitManualInput);
-                }
-
-                // Auto-save no Timer
-                const handleTmManualInput = (e) => {
-                    if (evt === 'blur' && e.target.type === 'number') e.target.value = e.target.value.padStart(2, '0');
-                    updateTmDisplayFromInputs();
-                };
-                const tmMin = document.getElementById('tm-input-min');
-                if(tmMin) {
-                    tmMin.addEventListener(evt, handleTmManualInput);
-                    document.getElementById('tm-input-sec').addEventListener(evt, handleTmManualInput);
+        // ================= LISTENERS DE EVENTO (Disparam a cada número digitado) =================
+        ['input', 'change', 'blur'].forEach(evt => {
+            // Escuta campos do HIIT
+            ['int-work-m', 'int-work-s', 'int-rest-m', 'int-rest-s', 'int-input-rounds', 'int-warmup-m', 'int-warmup-s'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    el.addEventListener(evt, (e) => {
+                        if (evt === 'blur' && e.target.type === 'number') e.target.value = e.target.value.padStart(2, '0');
+                        saveHiitState();
+                    });
                 }
             });
-            
-            // Inicializa listas de favoritos
-            renderPresets();
-            renderTmPresets();
-            if(document.getElementById('tm-input-min')) updateTmDisplayFromInputs();
+            // Escuta campos do Timer
+            ['tm-input-min', 'tm-input-sec'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    el.addEventListener(evt, (e) => {
+                        if (evt === 'blur' && e.target.type === 'number') e.target.value = e.target.value.padStart(2, '0');
+                        saveTimerState();
+                    });
+                }
+            });
         });
 
-        // ================= INICIALIZAÇÃO GERAL =================
-        applyThemeSettings();
-        renderHistory();
-        switchTab('gps');
+        // ================= INICIALIZAÇÃO GERAL (Boot System) =================
+        function bootApp() {
+            // 1. Carrega dados do HIIT (Prioridade: Modalidade Ativa > Backup Genérico)
+            if (currentActivePresetId !== null) {
+                const preset = myPresets.find(p => p.id === currentActivePresetId);
+                if (preset) {
+                    document.getElementById('int-work-m').value = Math.floor(preset.work/60).toString().padStart(2, '0');
+                    document.getElementById('int-work-s').value = (preset.work%60).toString().padStart(2, '0');
+                    document.getElementById('int-rest-m').value = Math.floor(preset.rest/60).toString().padStart(2, '0');
+                    document.getElementById('int-rest-s').value = (preset.rest%60).toString().padStart(2, '0');
+                    document.getElementById('int-input-rounds').value = preset.rounds; 
+                    document.getElementById('int-warmup-m').value = Math.floor(preset.warmup/60).toString().padStart(2, '0');
+                    document.getElementById('int-warmup-s').value = (preset.warmup%60).toString().padStart(2, '0');
+                }
+            } else {
+                const saved = localStorage.getItem('fittimer_lastConfig');
+                if(saved) {
+                    const config = JSON.parse(saved);
+                    document.getElementById('int-work-m').value = Math.floor(config.work/60).toString().padStart(2, '0');
+                    document.getElementById('int-work-s').value = (config.work%60).toString().padStart(2, '0');
+                    document.getElementById('int-rest-m').value = Math.floor(config.rest/60).toString().padStart(2, '0');
+                    document.getElementById('int-rest-s').value = (config.rest%60).toString().padStart(2, '0');
+                    document.getElementById('int-input-rounds').value = config.rounds || 1; 
+                    document.getElementById('int-warmup-m').value = Math.floor(config.warmup/60).toString().padStart(2, '0');
+                    document.getElementById('int-warmup-s').value = (config.warmup%60).toString().padStart(2, '0');
+                }
+            }
+
+            // 2. Carrega dados do Timer
+            if (currentActiveTmPresetId !== null) {
+                const preset = tmPresets.find(p => p.id === currentActiveTmPresetId);
+                if (preset) {
+                    document.getElementById('tm-input-min').value = Math.floor(preset.sec/60).toString().padStart(2, '0');
+                    document.getElementById('tm-input-sec').value = (preset.sec%60).toString().padStart(2, '0');
+                }
+            } else {
+                const savedTm = localStorage.getItem('fittimer_lastTmSec');
+                if (savedTm) {
+                    document.getElementById('tm-input-min').value = Math.floor(parseInt(savedTm)/60).toString().padStart(2, '0');
+                    document.getElementById('tm-input-sec').value = (parseInt(savedTm)%60).toString().padStart(2, '0');
+                }
+            }
+            updateTmDisplayFromInputs();
+
+            // Renderiza UI
+            applyThemeSettings();
+            renderPresets();
+            renderTmPresets();
+            renderHistory();
+            switchTab('gps');
+        }
+
+        // Chama o boot
+        bootApp();
 
     </script>
 </body>
