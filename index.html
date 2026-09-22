@@ -103,9 +103,9 @@
         <h2 class="text-white text-2xl font-black mb-8 tracking-wide">Tela Bloqueada</h2>
         
         <!-- Botão interativo de pressionar -->
-        <button id="btn-unlock" class="relative overflow-hidden bg-slate-800 border-2 border-theme rounded-2xl px-10 py-5 text-white font-bold text-lg shadow-2xl outline-none select-none">
+        <button id="btn-unlock" class="relative overflow-hidden bg-slate-800 border-2 border-theme rounded-2xl px-10 py-5 text-white font-bold text-lg shadow-2xl outline-none select-none" style="touch-action: none; -webkit-touch-callout: none;">
             <!-- Barra de progresso invisível que cresce -->
-            <div id="unlock-progress" class="absolute left-0 top-0 bottom-0 bg-theme/40 w-0 transition-all duration-[1200ms] ease-linear"></div>
+            <div id="unlock-progress" class="absolute left-0 top-0 bottom-0 bg-theme/40 w-0 transition-all duration-[800ms] ease-linear"></div>
             <span class="relative z-10 flex items-center gap-3"><i class="fa-solid fa-fingerprint text-2xl"></i> Segure para Desbloquear</span>
         </button>
         <p class="text-slate-400 mt-6 text-sm">Previne toques acidentais no bolso.</p>
@@ -569,23 +569,27 @@
         }
 
         function startUnlock(e) {
-            e.preventDefault(); 
+            if (e.cancelable) e.preventDefault(); 
             progUnlock.style.width = '100%';
             unlockTimeout = setTimeout(() => {
                 lockOverlay.classList.add('opacity-0');
                 setTimeout(() => { lockOverlay.classList.add('hidden'); progUnlock.style.width = '0%'; }, 300);
                 if(navigator.vibrate) navigator.vibrate(150);
-            }, 1200); 
+            }, 800); 
         }
 
         function cancelUnlock(e) {
-            e.preventDefault();
+            if (e && e.cancelable) e.preventDefault();
             clearTimeout(unlockTimeout);
             progUnlock.style.width = '0%';
         }
 
-        btnUnlock.addEventListener('touchstart', startUnlock, {passive: false}); btnUnlock.addEventListener('touchend', cancelUnlock); btnUnlock.addEventListener('touchmove', cancelUnlock); 
-        btnUnlock.addEventListener('mousedown', startUnlock); btnUnlock.addEventListener('mouseup', cancelUnlock); btnUnlock.addEventListener('mouseleave', cancelUnlock);
+        btnUnlock.addEventListener('touchstart', startUnlock, {passive: false}); 
+        btnUnlock.addEventListener('touchend', cancelUnlock); 
+        btnUnlock.addEventListener('touchcancel', cancelUnlock); 
+        btnUnlock.addEventListener('mousedown', startUnlock); 
+        btnUnlock.addEventListener('mouseup', cancelUnlock); 
+        btnUnlock.addEventListener('mouseleave', cancelUnlock);
 
         // ================= ÁUDIO E WAKE LOCK =================
         async function requestWakeLock() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {} }
