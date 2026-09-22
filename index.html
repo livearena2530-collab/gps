@@ -494,7 +494,7 @@
     </nav>
 
     <!-- Elementos Ocultos para Picture-in-Picture -->
-    <canvas id="pip-canvas" width="400" height="400" class="hidden"></canvas>
+    <canvas id="pip-canvas" width="800" height="800" class="hidden"></canvas>
     <video id="pip-video" class="hidden" muted playsinline autoplay></video>
 
     <script>
@@ -657,14 +657,14 @@
         async function requestWakeLock() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {} }
         function releaseWakeLock() { if (wakeLock !== null) wakeLock.release().then(() => wakeLock = null); }
 
-        // ================= PICTURE IN PICTURE (PiP) =================
+        // ================= PICTURE IN PICTURE (PiP) CORRIGIDO =================
         const pipVideo = document.getElementById('pip-video');
         const pipCanvas = document.getElementById('pip-canvas');
         const pipCtx = pipCanvas.getContext('2d');
         let pipInterval = null;
 
-        // Mostra o botão apenas se o navegador/celular tiver suporte ao PiP
-        if (document.pictureInPictureEnabled) {
+        // Oculta/Mostra o botão de forma segura baseado na compatibilidade real do navegador (Evita falhas no iOS)
+        if (document.pictureInPictureEnabled && typeof pipCanvas.captureStream === 'function') {
             document.getElementById('btn-pip').classList.remove('hidden');
         }
 
@@ -674,35 +674,49 @@
                 return;
             }
 
-            // Pinta o fundo inicial de escuro
+            // Verificaça de segurança final para browsers restritos
+            if (typeof pipCanvas.captureStream !== 'function') {
+                showToast("O modo Janela Flutuante não é suportado pelo seu navegador.");
+                return;
+            }
+
+            // Pinta o fundo inicial garantindo que a tela não vá preta
             pipCtx.fillStyle = '#0f172a';
-            pipCtx.fillRect(0, 0, 400, 400);
+            pipCtx.fillRect(0, 0, 800, 800);
+            drawPiP(); 
             
             try {
-                // Pega a transmissão (stream) do canvas a 30 quadros por segundo
                 const stream = pipCanvas.captureStream(30);
                 pipVideo.srcObject = stream;
                 
                 await pipVideo.play();
+
+                // TRUQUE VITAL: Aguarda o vídeo processar o primeiro quadro antes de empurrar para o PiP
+                if (pipVideo.readyState < 2) {
+                    await new Promise((resolve) => {
+                        pipVideo.addEventListener('loadedmetadata', resolve, { once: true });
+                    });
+                }
+                
                 await pipVideo.requestPictureInPicture();
                 
-                // Começa a desenhar o timer na janelinha
+                if (pipInterval) clearInterval(pipInterval);
                 pipInterval = setInterval(drawPiP, 100);
             } catch (error) {
-                console.error(error);
-                showToast("PiP não suportado por este navegador.");
+                console.error("Erro PiP:", error);
+                showToast("Erro ao abrir janela flutuante.");
             }
         }
 
-        // Quando o usuário fecha a janelinha pelo X do sistema
+        // Limpeza de memória quando fecha a janelinha
         pipVideo.addEventListener('leavepictureinpicture', () => {
-            clearInterval(pipInterval);
+            if (pipInterval) clearInterval(pipInterval);
         });
 
         function drawPiP() {
-            // Fundo escuro
+            // Fundo escuro (Alta resolução 800x800)
             pipCtx.fillStyle = '#0f172a';
-            pipCtx.fillRect(0, 0, 400, 400);
+            pipCtx.fillRect(0, 0, 800, 800);
             
             pipCtx.textAlign = "center";
             pipCtx.textBaseline = "middle";
@@ -711,10 +725,9 @@
             let labelText = "FitTimer";
             let color = "#ffffff";
             
-            // Pega a cor principal do tema do usuário
+            // Cor principal dinâmica do tema
             const themeHex = getComputedStyle(document.documentElement).getPropertyValue('--theme-base').trim() || '#10b981';
 
-            // Define o que será desenhado na janela baseado na aba ativa
             if (currentView === 'stopwatch') {
                 const date = new Date(swElapsedTime);
                 timeText = date.getUTCMinutes().toString().padStart(2, '0') + ':' + date.getUTCSeconds().toString().padStart(2, '0');
@@ -732,15 +745,19 @@
                 else { labelText = "HIIT"; }
             }
 
-            // Desenha o Título (Ex: "AÇÃO!")
-            pipCtx.font = "bold 45px Arial";
-            pipCtx.fillStyle = "#94a3b8"; 
-            pipCtx.fillText(labelText, 200, 130);
+            // Bordas decorativas para a janela flutuante parecer um widget nativo
+            pipCtx.lineWidth = 15;
+            pipCtx.strokeStyle = color;
+            pipCtx.strokeRect(30, 30, 740, 740);
 
-            // Desenha o Cronômetro
-            pipCtx.font = "bold 130px Arial";
+            // Textos desenhados centralizados no canvas 800x800
+            pipCtx.font = "bold 70px Arial";
+            pipCtx.fillStyle = "#94a3b8"; 
+            pipCtx.fillText(labelText, 400, 260);
+
+            pipCtx.font = "bold 230px Arial";
             pipCtx.fillStyle = color;
-            pipCtx.fillText(timeText, 200, 240);
+            pipCtx.fillText(timeText, 400, 460);
         }
 
         function toggleSound() {
