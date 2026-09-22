@@ -12,7 +12,7 @@
     <link id="manifest-link" rel="manifest" href="">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏱️</text></svg>">
 
-    <!-- Tailwind CSS (Usando CDN para ambiente de desenvolvimento online) -->
+    <!-- Tailwind CSS (CDN para dev) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Font Awesome -->
@@ -21,7 +21,7 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     
-    <!-- Bibliotecas Externas: Confete, HTML2Canvas e SortableJS (Drag & Drop) -->
+    <!-- Bibliotecas Externas: Confete, HTML2Canvas e SortableJS -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
@@ -64,7 +64,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
+            transition: transform 0.2s ease, background-color 0.3s ease;
         }
 
         .btn-circle:active {
@@ -89,47 +89,56 @@
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; appearance: none; }
-        
-        /* Sortable Drag Ghost Styling */
-        .sortable-ghost { opacity: 0.4; border: 2px dashed var(--theme-base); }
-        .sortable-drag { cursor: grabbing !important; }
+
+        /* Transições do Modo Foco (Tela Cheia) */
+        #app-header, #app-nav {
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+        }
+        body.focus-mode #app-header {
+            transform: translateY(-120%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        body.focus-mode #app-nav {
+            transform: translateY(120%);
+            opacity: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
+
 <body id="app-body" class="flex flex-col h-[100dvh] w-full transition-colors duration-500 bg-slate-900">
 
-    <!-- OVERLAY DE BLOQUEIO DE TELA -->
+    <!-- OVERLAY DE BLOQUEIO DE TELA COM SLIDER -->
     <div id="screen-lock-overlay" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[200] hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300">
         <i class="fa-solid fa-lock text-6xl text-theme mb-6"></i>
         <h2 class="text-white text-2xl font-black mb-8 tracking-wide">Tela Bloqueada</h2>
         
-        <!-- Botão de Slider para Desbloquear -->
+        <!-- Slider Deslizar para Destravar -->
         <div id="unlock-slider-container" class="relative w-72 h-16 bg-slate-900 border-2 border-slate-700 rounded-full flex items-center overflow-hidden shadow-2xl select-none">
-            <!-- Barra de fundo que preenche conforme arrasta -->
             <div id="unlock-track-fill" class="absolute left-0 top-0 bottom-0 bg-theme/20 rounded-full w-0"></div>
-            <!-- Texto indicativo -->
             <div class="absolute w-full text-center text-slate-400 font-bold text-sm tracking-widest uppercase pointer-events-none select-none">
                 Deslize para destravar
             </div>
-            <!-- Thumb (Botão que o usuário puxa) -->
             <div id="unlock-thumb" class="absolute left-1 w-14 h-14 bg-theme border-2 border-slate-900 rounded-full flex items-center justify-center text-white shadow-[0_0_15px_rgba(16,185,129,0.5)] z-10 cursor-grab" style="touch-action: none;">
-                <i class="fa-solid fa-chevron-right text-xl"></i>
+                <i class="fa-solid fa-chevron-right text-xl pointer-events-none"></i>
             </div>
         </div>
         <p class="text-slate-500 mt-8 text-xs font-semibold tracking-wider">PREVINE TOQUES ACIDENTAIS NO BOLSO</p>
     </div>
 
-    <!-- Toast de Notificação Geral/Conquistas -->
+    <!-- Toast de Notificações -->
     <div id="toast-notification" class="fixed top-6 left-1/2 transform -translate-x-1/2 bg-theme text-white px-6 py-3 rounded-full shadow-2xl font-black text-sm flex items-center gap-3 z-[100] transition-all duration-500 -translate-y-24 opacity-0 pointer-events-none tracking-wide">
         <i class="fa-solid fa-bell text-xl animate-bounce"></i>
         <span id="toast-text">Notificação!</span>
     </div>
 
-    <header class="pt-12 pb-4 px-6 flex justify-between items-center z-10 w-full shrink-0">
+    <header id="app-header" class="pt-12 pb-4 px-6 flex justify-between items-center z-10 w-full shrink-0 relative">
         <h1 class="text-2xl font-bold text-theme tracking-wide flex items-center gap-2">
             <i class="fa-solid fa-bolt"></i> FitTimer
         </h1>
         <div class="flex gap-4">
-            <!-- Novo Botão PiP (Flutuante) -->
+            <!-- Botão PiP -->
             <button id="btn-pip" onclick="togglePiP()" class="text-slate-300 hover:text-white text-xl transition-colors p-2 hidden">
                 <i class="fa-solid fa-window-restore"></i>
             </button>
@@ -145,7 +154,7 @@
     <main class="flex-1 w-full overflow-hidden relative">
         
         <!-- ================= MODO CRONÔMETRO ================= -->
-        <section id="view-stopwatch" class="absolute inset-0 flex flex-col items-center justify-between py-6 px-4 transition-transform duration-300 transform translate-x-0 opacity-100">
+        <section id="view-stopwatch" class="absolute inset-0 flex flex-col items-center justify-between py-6 px-4 transition-all duration-300 transform translate-x-0 opacity-100">
             <div class="flex-1 flex items-center justify-center w-full">
                 <div class="timer-display text-[90px] sm:text-9xl font-semibold text-white text-center w-full" id="sw-display">
                     00:00<span class="text-4xl text-slate-400">.00</span>
@@ -156,7 +165,6 @@
                 <button id="sw-btn-reset-lap" onclick="swResetOrLap()" class="btn-circle bg-slate-700 text-slate-300 w-16 h-16 text-xl">
                     <i id="sw-icon-reset-lap" class="fa-solid fa-flag"></i>
                 </button>
-                <!-- Botão de Bloqueio -->
                 <button onclick="lockScreen()" class="btn-circle bg-slate-800 text-slate-400 border border-slate-700 w-14 h-14 text-lg transition hover:text-white">
                     <i class="fa-solid fa-lock"></i>
                 </button>
@@ -173,7 +181,7 @@
         </section>
 
         <!-- ================= MODO TIMER ================= -->
-        <section id="view-timer" class="absolute inset-0 flex flex-col items-center py-6 px-4 hidden opacity-0 transition-transform duration-300 transform translate-x-full overflow-y-auto no-scrollbar">
+        <section id="view-timer" class="absolute inset-0 flex flex-col items-center py-6 px-4 hidden opacity-0 transition-all duration-300 transform translate-x-full overflow-y-auto no-scrollbar">
             
             <div class="flex-1 flex justify-center items-center w-full min-h-[260px] shrink-0 mb-4 mt-4">
                 <div class="relative w-[240px] h-[240px] sm:w-[280px] sm:h-[280px] shrink-0">
@@ -190,18 +198,16 @@
             </div>
 
             <div class="w-full max-w-sm flex flex-col items-center shrink-0 mt-auto pb-4">
-                
-                <!-- Presets do Timer -->
                 <div id="tm-presets-wrapper" class="w-full mb-3 transition-opacity duration-300">
                     <div class="flex items-center justify-between px-2 mb-1">
-                        <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Favoritos (Arraste p/ mover • 2 toques p/ opções)</span>
+                        <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Favoritos (Segure p/ mover • Clique 2x p/ opções)</span>
                     </div>
-                    <div id="tm-presets" class="flex overflow-x-auto no-scrollbar gap-2 pb-1 items-center px-1 snap-x">
+                    <div id="tm-presets" class="flex overflow-x-auto no-scrollbar gap-2 pb-1 items-center px-1">
                         <!-- Gerados via JS -->
                     </div>
                 </div>
 
-                <div id="tm-setup" class="flex gap-4 justify-center items-center bg-slate-800/80 backdrop-blur-sm p-4 rounded-2xl border border-slate-700 shadow-lg mb-6 w-full max-w-[250px]">
+                <div id="tm-setup" class="flex gap-4 justify-center items-center bg-slate-800/80 backdrop-blur-sm p-4 rounded-2xl border border-slate-700 shadow-lg mb-6 w-full max-w-[250px] transition-all">
                     <div class="flex flex-col items-center">
                         <input type="number" id="tm-input-min" value="05" min="0" max="99" class="w-16 h-12 text-center bg-slate-900 text-white text-3xl font-semibold rounded-xl outline-none focus:ring-2 focus:ring-theme ring-theme" onclick="this.select()">
                         <label class="text-[10px] text-slate-400 mt-1 font-bold tracking-wider">MIN</label>
@@ -217,7 +223,6 @@
                     <button id="tm-btn-reset" onclick="tmReset()" class="btn-circle bg-slate-700 text-slate-300 w-16 h-16 text-xl shrink-0">
                         <i class="fa-solid fa-stop"></i>
                     </button>
-                    <!-- Botão de Bloqueio -->
                     <button onclick="lockScreen()" class="btn-circle bg-slate-800 text-slate-400 border border-slate-700 w-14 h-14 text-lg transition hover:text-white shrink-0">
                         <i class="fa-solid fa-lock"></i>
                     </button>
@@ -229,7 +234,7 @@
         </section>
 
         <!-- ================= MODO INTERVALADO (HIIT) ================= -->
-        <section id="view-interval" class="absolute inset-0 flex flex-col items-center py-4 px-4 hidden opacity-0 transition-transform duration-300 transform translate-x-full overflow-y-auto no-scrollbar">
+        <section id="view-interval" class="absolute inset-0 flex flex-col items-center py-4 px-4 hidden opacity-0 transition-all duration-300 transform translate-x-full overflow-y-auto no-scrollbar">
             
             <div class="w-full text-center shrink-0 mb-2">
                 <div id="int-status" class="text-lg md:text-xl font-bold text-slate-400 uppercase tracking-widest">CONFIGURAÇÃO</div>
@@ -252,19 +257,15 @@
                 
                 <div id="int-presets-wrapper" class="w-full mb-3">
                     <div class="flex items-center justify-between px-2 mb-1">
-                        <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Favoritos (Arraste p/ mover • 2 toques p/ opções)</span>
+                        <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Favoritos (Segure p/ mover • Clique 2x p/ opções)</span>
                     </div>
-                    <div id="int-presets" class="flex overflow-x-auto no-scrollbar gap-2 pb-1 items-center px-1 snap-x cursor-grab active:cursor-grabbing">
+                    <div id="int-presets" class="flex overflow-x-auto no-scrollbar gap-2 pb-1 items-center px-1">
                         <!-- Gerados via JS -->
                     </div>
                 </div>
 
-                <!-- Configuração do HIIT -->
                 <div id="int-setup" class="w-full bg-slate-800/90 backdrop-blur-md p-3 rounded-2xl border border-slate-700 shadow-lg transition-all duration-300 mb-4">
-                    
-                    <!-- Linha 1: Ação, Pausa, Séries -->
                     <div class="grid grid-cols-3 gap-2 mb-2">
-                        <!-- AÇÃO (Min:Seg) -->
                         <div class="flex flex-col items-center justify-center bg-slate-900/60 p-2 rounded-xl border border-slate-700/50">
                             <label class="text-[9px] text-slate-400 mb-1 font-bold tracking-wider">AÇÃO</label>
                             <div class="flex items-center justify-center w-full">
@@ -273,7 +274,6 @@
                                 <input type="number" id="int-work-s" value="40" min="0" max="59" class="w-7 text-left bg-transparent text-green-400 text-xl font-bold outline-none no-scrollbar" onclick="this.select()">
                             </div>
                         </div>
-                        <!-- PAUSA (Min:Seg) -->
                         <div class="flex flex-col items-center justify-center bg-slate-900/60 p-2 rounded-xl border border-slate-700/50">
                             <label class="text-[9px] text-slate-400 mb-1 font-bold tracking-wider">PAUSA</label>
                             <div class="flex items-center justify-center w-full">
@@ -282,14 +282,11 @@
                                 <input type="number" id="int-rest-s" value="20" min="0" max="59" class="w-7 text-left bg-transparent text-red-400 text-xl font-bold outline-none no-scrollbar" onclick="this.select()">
                             </div>
                         </div>
-                        <!-- SÉRIES -->
                         <div class="flex flex-col items-center justify-center bg-slate-900/60 p-2 rounded-xl border border-slate-700/50">
                             <label class="text-[9px] text-slate-400 mb-1 font-bold tracking-wider">SÉRIES</label>
                             <input type="number" id="int-input-rounds" value="8" min="1" max="99" class="w-full h-7 text-center bg-transparent text-white text-xl font-bold outline-none no-scrollbar" onclick="this.select()">
                         </div>
                     </div>
-
-                    <!-- Linha 2: Aquecer apenas -->
                     <div class="flex justify-center">
                         <div class="flex flex-col items-center justify-center bg-slate-900/60 p-2 rounded-xl border border-yellow-900/40 w-[150px]">
                             <label class="text-[9px] text-yellow-500 font-bold tracking-wider">AQUECER</label>
@@ -306,7 +303,6 @@
                     <button id="int-btn-reset" onclick="intReset()" class="btn-circle bg-slate-700 text-slate-300 w-16 h-16 text-xl shrink-0 shadow-lg">
                         <i class="fa-solid fa-stop"></i>
                     </button>
-                    <!-- Botão de Bloqueio -->
                     <button onclick="lockScreen()" class="btn-circle bg-slate-800 text-slate-400 border border-slate-700 w-14 h-14 text-lg transition hover:text-white shrink-0">
                         <i class="fa-solid fa-lock"></i>
                     </button>
@@ -317,8 +313,8 @@
             </div>
         </section>
 
-        <!-- ================= MODO HISTÓRICO (GAMIFICAÇÃO) ================= -->
-        <section id="view-history" class="absolute inset-0 flex flex-col items-center py-6 px-4 hidden opacity-0 transition-transform duration-300 transform translate-x-full overflow-y-auto no-scrollbar">
+        <!-- ================= MODO HISTÓRICO ================= -->
+        <section id="view-history" class="absolute inset-0 flex flex-col items-center py-6 px-4 hidden opacity-0 transition-all duration-300 transform translate-x-full overflow-y-auto no-scrollbar">
             
             <div class="w-full flex justify-between items-end mb-4">
                 <h2 class="text-2xl font-black text-white">Meu Perfil</h2>
@@ -327,7 +323,6 @@
                 </div>
             </div>
             
-            <!-- Resumo -->
             <div class="grid grid-cols-2 gap-3 w-full mb-6">
                 <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700 flex flex-col items-center justify-center text-center shadow-md">
                     <span class="text-3xl font-black text-white" id="hist-total-workouts">0</span>
@@ -339,18 +334,14 @@
                 </div>
             </div>
 
-            <!-- Gamificação / Conquistas -->
             <div class="w-full bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50 mb-6 shadow-lg">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Medalhas</h3>
                     <span class="text-[9px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full font-bold" id="badge-count">0/6</span>
                 </div>
-                <div class="grid grid-cols-3 gap-3 w-full" id="badges-container">
-                    <!-- Preenchido via JS -->
-                </div>
+                <div class="grid grid-cols-3 gap-3 w-full" id="badges-container"></div>
             </div>
 
-            <!-- Gráfico Semanal -->
             <div class="w-full bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50 mb-6">
                 <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Atividade da Semana</h3>
                 <div class="flex justify-between items-end h-24 gap-1 px-2" id="chart-week"></div>
@@ -365,19 +356,17 @@
             </div>
         </section>
 
-        <!-- ================= CARD INVISÍVEL PARA COMPARTILHAMENTO DE STATUS ================= -->
+        <!-- Card Oculto de Compartilhamento -->
         <div id="share-card-container" class="fixed -left-[2000px] top-0 pointer-events-none">
             <div id="share-card" class="w-[600px] h-[800px] bg-slate-900 flex flex-col justify-between items-center p-12 rounded-3xl border-8 border-theme">
                 <div class="text-center mt-10">
                     <h1 class="text-6xl font-black text-theme mb-2"><i class="fa-solid fa-bolt"></i> FitTimer Pro</h1>
                     <p class="text-2xl text-slate-400 font-semibold tracking-widest uppercase">Treino Concluído!</p>
                 </div>
-                
                 <div class="flex flex-col items-center">
                     <div class="timer-display text-[150px] font-bold text-white leading-none shadow-black drop-shadow-2xl mb-4" id="share-time">00:00</div>
                     <div class="bg-slate-800 border-2 border-slate-700 px-8 py-4 rounded-2xl text-3xl text-white font-bold" id="share-type">Treino</div>
                 </div>
-
                 <div class="w-full flex justify-between items-center bg-slate-800/50 p-6 rounded-2xl border border-slate-700 mb-8">
                     <div class="flex items-center gap-3">
                         <i class="fa-solid fa-fire text-4xl text-orange-400"></i>
@@ -391,7 +380,7 @@
             </div>
         </div>
 
-        <!-- ================= MODAIS ================= -->
+        <!-- Modais -->
         <div id="modal-save-preset" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
             <div class="bg-slate-800 p-6 rounded-2xl w-full max-w-sm border border-slate-700 shadow-2xl transform scale-95 transition-transform duration-300" id="modal-save-preset-content">
                 <h3 class="text-white text-xl font-bold mb-1" id="modal-preset-title">Adicionar Treino</h3>
@@ -407,12 +396,9 @@
         <div id="modal-options-preset" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
             <div class="bg-slate-800 p-4 rounded-3xl w-full max-w-sm border border-slate-700 shadow-2xl transform scale-95 transition-transform duration-300" id="modal-options-preset-content">
                 <h3 class="text-slate-400 text-sm font-semibold text-center mb-4 pb-2 border-b border-slate-700/50 uppercase tracking-widest" id="options-title">Opções</h3>
-                
-                <!-- Botão de Compartilhar Link -->
                 <button onclick="triggerSharePresetLink()" class="w-full py-4 text-emerald-400 text-lg font-semibold bg-emerald-900/30 border border-emerald-800/50 rounded-xl mb-3 flex items-center justify-center gap-3 transition hover:bg-emerald-800/50">
                     <i class="fa-solid fa-link"></i> Compartilhar Link
                 </button>
-                
                 <button onclick="triggerEditPreset()" class="w-full py-4 text-white text-lg font-semibold bg-slate-700/50 rounded-xl mb-3 flex items-center justify-center gap-3 transition">
                     <i class="fa-solid fa-pen text-blue-400"></i> Renomear Favorito
                 </button>
@@ -467,14 +453,13 @@
                         <input type="file" id="import-file" accept=".json" class="hidden" onchange="importBackup(event)">
                     </div>
                 </div>
-                
                 <button onclick="closeSettingsModal()" class="w-full py-3 bg-theme text-white font-black rounded-xl shadow-lg">PRONTO</button>
             </div>
         </div>
 
     </main>
 
-    <nav class="w-full bg-slate-800/95 backdrop-blur-md border-t border-slate-700 flex justify-around items-center px-1 pt-2 pb-[var(--safe-area-bottom)] shrink-0 z-20 relative">
+    <nav id="app-nav" class="w-full bg-slate-800/95 backdrop-blur-md border-t border-slate-700 flex justify-around items-center px-1 pt-2 pb-[var(--safe-area-bottom)] shrink-0 z-20 relative">
         <button onclick="switchTab('stopwatch')" id="tab-stopwatch" class="nav-btn flex flex-col items-center justify-center w-16 py-2 text-theme transition-colors">
             <i class="fa-solid fa-stopwatch text-xl mb-1"></i>
             <span class="text-[9px] font-bold tracking-wider">CRONO</span>
@@ -499,6 +484,10 @@
 
     <script>
         // ================= PWA SETUP 100% OFFLINE REAL =================
+        const manifest = {
+            name: "FitTimer Pro", short_name: "FitTimer", display: "standalone",
+            background_color: "#0f172a", theme_color: "#0f172a",
+            icons: [{ src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%8F%B1%EF%B8%8F%3C/text%3E%3C/svg%3E", sizes: "192x192", type: "image/svg+xml" }]
         };
         const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
         document.getElementById('manifest-link').href = URL.createObjectURL(manifestBlob);
@@ -568,6 +557,26 @@
             m.classList.add('opacity-0'); c.classList.add('scale-95'); setTimeout(() => m.classList.add('hidden'), 300);
         }
 
+        // ================= MODO FOCO (TELA CHEIA) =================
+        function setFocusMode(isActive) {
+            if (isActive) {
+                document.body.classList.add('focus-mode');
+                try {
+                    // Força tela cheia apenas em navegadores que suportam e evitam erros mudos
+                    if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+                        document.documentElement.requestFullscreen().catch(()=>{});
+                    }
+                } catch(e) {}
+            } else {
+                document.body.classList.remove('focus-mode');
+                try {
+                    if (document.exitFullscreen && document.fullscreenElement) {
+                        document.exitFullscreen().catch(()=>{});
+                    }
+                } catch(e) {}
+            }
+        }
+
         // ================= BLOQUEIO DE TELA (SLIDER) =================
         const lockOverlay = document.getElementById('screen-lock-overlay');
         const sliderContainer = document.getElementById('unlock-slider-container');
@@ -594,27 +603,19 @@
         function onSliderStart(e) {
             isDraggingSlider = true;
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            // Salva a distância exata entre o toque e a borda esquerda do botão
             sliderStartX = clientX - thumb.offsetLeft; 
-            // Largura máxima que o botão pode percorrer sem vazar o container
             sliderMaxX = sliderContainer.offsetWidth - thumb.offsetWidth - 8;
-            
-            thumb.style.transition = 'none'; // Desliga transição para seguir o dedo instantaneamente
+            thumb.style.transition = 'none'; 
             trackFill.style.transition = 'none';
-            thumb.classList.add('cursor-grabbing');
         }
 
         function onSliderMove(e) {
             if (!isDraggingSlider) return;
-            if (e.cancelable) e.preventDefault(); // Impede a tela do fundo de arrastar junto
-            
+            if (e.cancelable) e.preventDefault(); 
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             let currentX = clientX - sliderStartX;
-
-            // Mantém o botão dentro dos limites visuais do trilho
             if (currentX < 4) currentX = 4;
             if (currentX > sliderMaxX) currentX = sliderMaxX;
-
             thumb.style.left = currentX + 'px';
             trackFill.style.width = (currentX + (thumb.offsetWidth / 2)) + 'px';
         }
@@ -622,48 +623,34 @@
         function onSliderEnd(e) {
             if (!isDraggingSlider) return;
             isDraggingSlider = false;
-            thumb.classList.remove('cursor-grabbing');
-
             const currentX = parseInt(thumb.style.left || 4, 10);
-            
-            // Se o usuário puxou até 85% do trilho, nós completamos a ação (Sucesso)
             if (currentX >= sliderMaxX * 0.85) {
                 thumb.style.left = sliderMaxX + 'px';
                 trackFill.style.width = '100%';
-                
                 setTimeout(() => {
                     lockOverlay.classList.add('opacity-0');
                     setTimeout(() => { lockOverlay.classList.add('hidden'); resetUnlockSlider(); }, 300);
                 }, 150);
-                
                 if(navigator.vibrate) navigator.vibrate(150);
             } else {
-                // Se soltou antes da hora, o botão desliza de volta para o começo (Mola)
                 resetUnlockSlider();
             }
         }
-
-        // Suporte para Touch (Celulares)
         thumb.addEventListener('touchstart', onSliderStart, {passive: false});
         document.addEventListener('touchmove', onSliderMove, {passive: false});
         document.addEventListener('touchend', onSliderEnd);
-        
-        // Suporte para Mouse (Desktop/Notebooks)
         thumb.addEventListener('mousedown', onSliderStart);
         document.addEventListener('mousemove', onSliderMove);
         document.addEventListener('mouseup', onSliderEnd);
 
-        // ================= ÁUDIO E WAKE LOCK =================
-        async function requestWakeLock() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {} }
-        function releaseWakeLock() { if (wakeLock !== null) wakeLock.release().then(() => wakeLock = null); }
 
-        // ================= PICTURE IN PICTURE (PiP) CORRIGIDO =================
+        // ================= PICTURE IN PICTURE (PiP) =================
         const pipVideo = document.getElementById('pip-video');
         const pipCanvas = document.getElementById('pip-canvas');
         const pipCtx = pipCanvas.getContext('2d');
         let pipInterval = null;
 
-        // Oculta/Mostra o botão de forma segura baseado na compatibilidade real do navegador (Evita falhas no iOS)
+        // Verifica segurança (Não exibe o botão se estiver no iPhone/Safari sem suporte real)
         if (document.pictureInPictureEnabled && typeof pipCanvas.captureStream === 'function') {
             document.getElementById('btn-pip').classList.remove('hidden');
         }
@@ -673,14 +660,10 @@
                 await document.exitPictureInPicture();
                 return;
             }
-
-            // Verificaça de segurança final para browsers restritos
             if (typeof pipCanvas.captureStream !== 'function') {
-                showToast("O modo Janela Flutuante não é suportado pelo seu navegador.");
+                showToast("Janela Flutuante não suportada.");
                 return;
             }
-
-            // Pinta o fundo inicial garantindo que a tela não vá preta
             pipCtx.fillStyle = '#0f172a';
             pipCtx.fillRect(0, 0, 800, 800);
             drawPiP(); 
@@ -688,18 +671,15 @@
             try {
                 const stream = pipCanvas.captureStream(30);
                 pipVideo.srcObject = stream;
-                
                 await pipVideo.play();
-
-                // TRUQUE VITAL: Aguarda o vídeo processar o primeiro quadro antes de empurrar para o PiP
+                
+                // Trava de segurança contra erro "Metadata not loaded"
                 if (pipVideo.readyState < 2) {
                     await new Promise((resolve) => {
                         pipVideo.addEventListener('loadedmetadata', resolve, { once: true });
                     });
                 }
-                
                 await pipVideo.requestPictureInPicture();
-                
                 if (pipInterval) clearInterval(pipInterval);
                 pipInterval = setInterval(drawPiP, 100);
             } catch (error) {
@@ -708,24 +688,17 @@
             }
         }
 
-        // Limpeza de memória quando fecha a janelinha
-        pipVideo.addEventListener('leavepictureinpicture', () => {
-            if (pipInterval) clearInterval(pipInterval);
-        });
+        pipVideo.addEventListener('leavepictureinpicture', () => { if (pipInterval) clearInterval(pipInterval); });
 
         function drawPiP() {
-            // Fundo escuro (Alta resolução 800x800)
             pipCtx.fillStyle = '#0f172a';
             pipCtx.fillRect(0, 0, 800, 800);
-            
             pipCtx.textAlign = "center";
             pipCtx.textBaseline = "middle";
 
             let timeText = "00:00";
             let labelText = "FitTimer";
             let color = "#ffffff";
-            
-            // Cor principal dinâmica do tema
             const themeHex = getComputedStyle(document.documentElement).getPropertyValue('--theme-base').trim() || '#10b981';
 
             if (currentView === 'stopwatch') {
@@ -745,20 +718,20 @@
                 else { labelText = "HIIT"; }
             }
 
-            // Bordas decorativas para a janela flutuante parecer um widget nativo
-            pipCtx.lineWidth = 15;
+            pipCtx.lineWidth = 20;
             pipCtx.strokeStyle = color;
-            pipCtx.strokeRect(30, 30, 740, 740);
-
-            // Textos desenhados centralizados no canvas 800x800
-            pipCtx.font = "bold 70px Arial";
+            pipCtx.strokeRect(40, 40, 720, 720);
+            pipCtx.font = "bold 80px Arial";
             pipCtx.fillStyle = "#94a3b8"; 
             pipCtx.fillText(labelText, 400, 260);
-
-            pipCtx.font = "bold 230px Arial";
+            pipCtx.font = "bold 240px Arial";
             pipCtx.fillStyle = color;
             pipCtx.fillText(timeText, 400, 460);
         }
+
+        // ================= ÁUDIO E WAKE LOCK =================
+        async function requestWakeLock() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {} }
+        function releaseWakeLock() { if (wakeLock !== null) wakeLock.release().then(() => wakeLock = null); }
 
         function toggleSound() {
             isSoundOn = !isSoundOn; const icon = document.getElementById('icon-sound');
@@ -776,7 +749,6 @@
             if (selectedSound === 'beep') playSynthBeep(type);
             else if (selectedSound === 'bell') playSynthBell(type);
             else if (selectedSound === 'whistle') playSynthWhistle(type);
-            
             if (navigator.vibrate) vibrateDevice(type);
         }
 
@@ -838,12 +810,12 @@
         let unlockedBadgesList = JSON.parse(localStorage.getItem('fittimer_badges')) || [];
 
         const BADGES = [
-            { id: 'first', icon: 'fa-star', color: 'text-yellow-400', name: 'Iniciante', desc: 'Concluiu o 1º treino', check: (hist, streak) => hist.length >= 1 },
-            { id: 'athlete', icon: 'fa-dumbbell', color: 'text-emerald-400', name: 'Atleta', desc: 'Atingiu 10 treinos', check: (hist, streak) => hist.length >= 10 },
-            { id: 'centurion', icon: 'fa-shield-halved', color: 'text-blue-400', name: 'Centurião', desc: 'Atingiu 100 treinos', check: (hist, streak) => hist.length >= 100 },
-            { id: 'streak7', icon: 'fa-fire-flame-curved', color: 'text-orange-500', name: 'Foco Total', desc: 'Ofensiva de 7 dias', check: (hist, streak) => streak >= 7 },
-            { id: 'early', icon: 'fa-sun', color: 'text-yellow-200', name: 'Madrugador', desc: 'Treinou antes das 7h', check: (hist, streak) => hist.some(h => new Date(h.date).getHours() >= 4 && new Date(h.date).getHours() < 7) },
-            { id: 'night', icon: 'fa-moon', color: 'text-indigo-400', name: 'Coruja', desc: 'Treinou após as 22h', check: (hist, streak) => hist.some(h => new Date(h.date).getHours() >= 22 || new Date(h.date).getHours() < 3) }
+            { id: 'first', icon: 'fa-star', color: 'text-yellow-400', name: 'Iniciante', desc: 'Concluiu o 1º treino', check: (h, s) => h.length >= 1 },
+            { id: 'athlete', icon: 'fa-dumbbell', color: 'text-emerald-400', name: 'Atleta', desc: 'Atingiu 10 treinos', check: (h, s) => h.length >= 10 },
+            { id: 'centurion', icon: 'fa-shield-halved', color: 'text-blue-400', name: 'Centurião', desc: 'Atingiu 100 treinos', check: (h, s) => h.length >= 100 },
+            { id: 'streak7', icon: 'fa-fire-flame-curved', color: 'text-orange-500', name: 'Foco Total', desc: 'Ofensiva de 7 dias', check: (h, s) => s >= 7 },
+            { id: 'early', icon: 'fa-sun', color: 'text-yellow-200', name: 'Madrugador', desc: 'Treinou antes das 7h', check: (h, s) => h.some(i => new Date(i.date).getHours() >= 4 && new Date(i.date).getHours() < 7) },
+            { id: 'night', icon: 'fa-moon', color: 'text-indigo-400', name: 'Coruja', desc: 'Treinou após as 22h', check: (h, s) => h.some(i => new Date(i.date).getHours() >= 22 || new Date(i.date).getHours() < 3) }
         ];
         
         function saveToHistory(type, minutes) {
@@ -880,10 +852,8 @@
         }
 
         function renderHistory() {
-            const totalWorkouts = appHistory.length;
-            const totalMinutes = appHistory.reduce((acc, curr) => acc + curr.duration, 0);
-            document.getElementById('hist-total-workouts').innerText = totalWorkouts;
-            document.getElementById('hist-total-minutes').innerText = Math.round(totalMinutes);
+            document.getElementById('hist-total-workouts').innerText = appHistory.length;
+            document.getElementById('hist-total-minutes').innerText = Math.round(appHistory.reduce((a, c) => a + c.duration, 0));
             currentStreak = calculateStreak();
             document.getElementById('hist-streak').innerText = `${currentStreak} Dias`;
             
@@ -968,17 +938,13 @@
             } catch(e) { container.classList.add('-left-[2000px]'); }
         }
 
-        // ================= COMPARTILHAMENTO E LINKS =================
         function triggerSharePresetLink() {
             closeOptionsModal(); let dataToShare;
             if (presetContext === 'timer') { const p = tmPresets.find(x => x.id === selectedOptionsPresetId); if(!p) return; dataToShare = { type: 'timer', n: p.name, sec: p.sec }; } 
             else { const p = myPresets.find(x => x.id === selectedOptionsPresetId); if(!p) return; dataToShare = { type: 'hiit', n: p.name, w: p.work, r: p.rest, ro: p.rounds, wu: p.warmup }; }
-
             const jsonStr = JSON.stringify(dataToShare); const b64 = btoa(encodeURIComponent(jsonStr));
             const shareUrl = window.location.origin + window.location.pathname + "?p=" + b64;
-            
-            if(navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(shareUrl).then(() => showToast("Link copiado pro teclado!")).catch(fallbackCopy); } 
-            else { fallbackCopy(); }
+            if(navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(shareUrl).then(() => showToast("Link copiado pro teclado!")).catch(fallbackCopy); } else { fallbackCopy(); }
             function fallbackCopy() { const ta = document.createElement('textarea'); ta.value = shareUrl; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast("Link copiado!"); }
         }
 
@@ -1006,7 +972,7 @@
             }
         }
 
-        // ================= UTILITÁRIOS & NAVEGAÇÃO =================
+        // ================= UTILITÁRIOS GERAIS =================
         function formatTimeSW(timeInMs) {
             let date = new Date(timeInMs);
             let m = date.getUTCMinutes().toString().padStart(2, '0'); let s = date.getUTCSeconds().toString().padStart(2, '0'); let ms = Math.floor(date.getUTCMilliseconds() / 10).toString().padStart(2, '0');
@@ -1023,7 +989,6 @@
             if(ring && totalTime > 0) ring.style.strokeDashoffset = 100 - ((timeRemaining / totalTime) * 100);
         }
 
-        // ANIMAÇÃO DE DESLIZAMENTO DE ABAS
         function switchTab(tab) {
             if (tab === currentView) return;
             const tabs = ['stopwatch', 'timer', 'interval', 'history'];
@@ -1034,13 +999,11 @@
             tabs.forEach(t => {
                 const btn = document.getElementById(`tab-${t}`);
                 const view = document.getElementById(`view-${t}`);
-                
                 if (t === tab) { btn.classList.add('text-theme'); btn.classList.remove('text-slate-500'); } 
                 else { btn.classList.remove('text-theme'); btn.classList.add('text-slate-500'); }
                 
                 if (t === tab) {
-                    view.classList.remove('hidden');
-                    void view.offsetWidth; // Força re-render para a animação CSS pegar
+                    view.classList.remove('hidden'); void view.offsetWidth; 
                     view.classList.remove('translate-x-full', '-translate-x-full', 'opacity-0');
                     view.classList.add('translate-x-0', 'opacity-100');
                 } else if (t === currentView) {
@@ -1048,16 +1011,11 @@
                     view.classList.add(isForward ? '-translate-x-full' : 'translate-x-full', 'opacity-0');
                     setTimeout(() => { if (currentView !== t) view.classList.add('hidden'); }, 300);
                 } else {
-                    view.classList.add('hidden', 'opacity-0');
-                    view.classList.remove('translate-x-0');
-                    if (tabs.indexOf(t) > newIndex) {
-                        view.classList.add('translate-x-full'); view.classList.remove('-translate-x-full');
-                    } else {
-                        view.classList.add('-translate-x-full'); view.classList.remove('translate-x-full');
-                    }
+                    view.classList.add('hidden', 'opacity-0'); view.classList.remove('translate-x-0');
+                    if (tabs.indexOf(t) > newIndex) { view.classList.add('translate-x-full'); view.classList.remove('-translate-x-full'); } 
+                    else { view.classList.add('-translate-x-full'); view.classList.remove('translate-x-full'); }
                 }
             });
-            
             currentView = tab;
             if (tab !== 'interval' && !intIsRunning) document.getElementById('app-body').className = 'flex flex-col h-[100dvh] w-full transition-colors duration-500 bg-slate-900';
             else if (tab === 'interval') updateIntBgColor();
@@ -1070,18 +1028,18 @@
         function swUpdateDisplay() { swDisplay.innerHTML = formatTimeSW(swElapsedTime); }
         function swStartPause() {
             if (swIsRunning) {
-                clearInterval(swInterval); swIsRunning = false; releaseWakeLock();
+                clearInterval(swInterval); swIsRunning = false; releaseWakeLock(); setFocusMode(false);
                 swBtnStartPause.classList.replace('bg-amber-600', 'bg-theme'); swIconStartPause.classList.replace('fa-pause', 'fa-play'); swIconResetLap.classList.replace('fa-flag', 'fa-rotate-left');
             } else {
                 swStartTime = Date.now() - swElapsedTime; swInterval = setInterval(() => { swElapsedTime = Date.now() - swStartTime; swUpdateDisplay(); }, 10);
-                swIsRunning = true; requestWakeLock();
+                swIsRunning = true; requestWakeLock(); setFocusMode(true);
                 swBtnStartPause.classList.replace('bg-theme', 'bg-amber-600'); swIconStartPause.classList.replace('fa-play', 'fa-pause'); swIconResetLap.classList.replace('fa-rotate-left', 'fa-flag');
-                if(audioCtx.state === 'suspended') audioCtx.resume();
+                if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             }
         }
         function swResetOrLap() {
             if (swIsRunning) { swLaps.unshift({ total: swElapsedTime, split: swElapsedTime - (swLaps.length > 0 ? swLaps[0].total : 0) }); renderLaps(); } 
-            else { swElapsedTime = 0; swLaps = []; swUpdateDisplay(); renderLaps(); swIconResetLap.classList.replace('fa-rotate-left', 'fa-flag'); }
+            else { swElapsedTime = 0; swLaps = []; swUpdateDisplay(); renderLaps(); swIconResetLap.classList.replace('fa-rotate-left', 'fa-flag'); setFocusMode(false); }
         }
         function renderLaps() {
             if (swLaps.length === 0) { swLapsContainer.innerHTML = '<li class="text-center text-slate-500 text-sm mt-4">Nenhuma volta registrada</li>'; return; }
@@ -1109,19 +1067,17 @@
                 const isActive = (p.id === currentActiveTmPresetId);
                 const btn = document.createElement('button');
                 btn.className = isActive 
-                    ? 'h-10 px-4 bg-theme text-white text-sm font-bold rounded-lg border border-theme shadow-md transition-all shrink-0 snap-center flex items-center justify-center preset-item' 
-                    : 'h-10 px-4 bg-slate-800 text-slate-300 text-sm font-bold rounded-lg border border-slate-700 active:bg-slate-700 transition-all shrink-0 snap-center flex items-center justify-center preset-item';
+                    ? 'h-10 px-4 bg-theme text-white text-sm font-bold rounded-lg border border-theme shadow-md transition-all shrink-0 snap-center flex items-center justify-center cursor-pointer select-none touch-manipulation' 
+                    : 'h-10 px-4 bg-slate-800 text-slate-300 text-sm font-bold rounded-lg border border-slate-700 active:bg-slate-700 transition-all shrink-0 snap-center flex items-center justify-center cursor-pointer select-none touch-manipulation';
                 btn.innerText = p.name;
                 btn.dataset.id = p.id;
 
                 btn.onclick = (e) => { 
                     e.preventDefault(); 
                     if (isActive) { 
-                        // Se já está ativo (Verde), o segundo clique abre as Opções
                         if(navigator.vibrate) navigator.vibrate(50);
                         openOptionsModal(p.id, p.name, 'timer');
                     } else {
-                        // Se não está ativo, seleciona ele
                         currentActiveTmPresetId = p.id; 
                         localStorage.setItem('fittimer_activeTmPreset', p.id);
                         setTmPreset(p.sec); 
@@ -1159,8 +1115,10 @@
         ['input', 'blur'].forEach(evt => { tmInputMin.addEventListener(evt, handleTmManualInput); tmInputSec.addEventListener(evt, handleTmManualInput); });
 
         function tmStartPause() {
-            if (tmIsRunning) { clearInterval(tmInterval); tmIsRunning = false; releaseWakeLock(); tmBtnStartPause.classList.replace('bg-amber-600', 'bg-theme'); tmIconStartPause.classList.replace('fa-pause', 'fa-play'); } 
-            else {
+            if (tmIsRunning) { 
+                clearInterval(tmInterval); tmIsRunning = false; releaseWakeLock(); setFocusMode(false);
+                tmBtnStartPause.classList.replace('bg-amber-600', 'bg-theme'); tmIconStartPause.classList.replace('fa-pause', 'fa-play'); 
+            } else {
                 if(tmTimeRemaining === 0) updateTmDisplayFromInputs(); if(tmTimeRemaining === 0) return;
                 tmSetup.style.opacity = '0'; setTimeout(() => tmSetup.classList.add('hidden'), 300); document.getElementById('tm-presets-wrapper').classList.add('opacity-0'); setTimeout(() => document.getElementById('tm-presets-wrapper').classList.add('hidden'), 300);
 
@@ -1171,15 +1129,16 @@
                     else if (tmTimeRemaining === 3) speakVoiceCoach("Três"); else if (tmTimeRemaining === 2) speakVoiceCoach("Dois"); else if (tmTimeRemaining === 1) speakVoiceCoach("Um"); else if (tmTimeRemaining <= 3 && tmTimeRemaining > 0) playBeep('short');
                     
                     if (tmTimeRemaining <= 0) {
-                        clearInterval(tmInterval); tmIsRunning = false; playBeep('end'); tmResetUI();
+                        clearInterval(tmInterval); tmIsRunning = false; playBeep('end'); tmResetUI(); setFocusMode(false);
                         let timerName = "Timer Livre"; if(currentActiveTmPresetId) { const p = tmPresets.find(x => x.id === currentActiveTmPresetId); if(p) timerName = p.name; }
                         saveToHistory(timerName, tmTotalSeconds / 60); if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
                     }
                 }, 1000);
-                tmIsRunning = true; requestWakeLock(); tmBtnStartPause.classList.replace('bg-theme', 'bg-amber-600'); tmIconStartPause.classList.replace('fa-play', 'fa-pause');
+                tmIsRunning = true; requestWakeLock(); setFocusMode(true);
+                tmBtnStartPause.classList.replace('bg-theme', 'bg-amber-600'); tmIconStartPause.classList.replace('fa-play', 'fa-pause');
             }
         }
-        function tmReset() { clearInterval(tmInterval); tmIsRunning = false; releaseWakeLock(); updateTmDisplayFromInputs(); tmResetUI(); }
+        function tmReset() { clearInterval(tmInterval); tmIsRunning = false; releaseWakeLock(); updateTmDisplayFromInputs(); tmResetUI(); setFocusMode(false); }
         function tmResetUI() {
             tmSetup.classList.remove('hidden'); setTimeout(() => tmSetup.style.opacity = '1', 50); document.getElementById('tm-presets-wrapper').classList.remove('hidden'); setTimeout(() => document.getElementById('tm-presets-wrapper').classList.remove('opacity-0'), 50);
             tmBtnStartPause.classList.replace('bg-amber-600', 'bg-theme'); tmIconStartPause.classList.replace('fa-pause', 'fa-play'); tmDisplay.innerHTML = formatTimeSimple(tmTimeRemaining); updateSvgRing('tm-progress-ring', tmTimeRemaining, tmTotalSeconds);
@@ -1188,7 +1147,7 @@
         // ================= PRESETS OFFLINE & DRAG DROP =================
         const STORAGE_CONFIG_KEY = 'fittimer_lastConfig'; 
         const STORAGE_PRESETS_KEY = 'fittimer_customPresets';
-        let currentEditPresetId = null; let selectedOptionsPresetId = null; let pressTimer; let isLongPress = false; 
+        let currentEditPresetId = null; let selectedOptionsPresetId = null; 
         let currentActivePresetId = localStorage.getItem('fittimer_activePreset') || null;
         let presetContext = 'hiit';
 
@@ -1204,19 +1163,17 @@
                 const isActive = (p.id === currentActivePresetId);
                 const btn = document.createElement('button');
                 btn.className = isActive 
-                    ? 'h-10 px-4 bg-theme text-white text-sm font-bold rounded-lg border border-theme shadow-md transition-all shrink-0 snap-center flex items-center justify-center preset-item' 
-                    : 'h-10 px-4 bg-slate-800 text-slate-300 text-sm font-bold rounded-lg border border-slate-700 active:bg-slate-700 transition-all shrink-0 snap-center flex items-center justify-center preset-item';
+                    ? 'h-10 px-4 bg-theme text-white text-sm font-bold rounded-lg border border-theme shadow-md transition-all shrink-0 snap-center flex items-center justify-center cursor-pointer select-none touch-manipulation' 
+                    : 'h-10 px-4 bg-slate-800 text-slate-300 text-sm font-bold rounded-lg border border-slate-700 active:bg-slate-700 transition-all shrink-0 snap-center flex items-center justify-center cursor-pointer select-none touch-manipulation';
                 btn.innerText = p.name;
                 btn.dataset.id = p.id;
 
                 btn.onclick = (e) => { 
                     e.preventDefault(); 
                     if (isActive) { 
-                        // Se já está ativo (Verde), o segundo clique abre as Opções
                         if(navigator.vibrate) navigator.vibrate(50);
                         openOptionsModal(p.id, p.name, 'hiit');
                     } else {
-                        // Se não está ativo, seleciona ele
                         currentActivePresetId = p.id; 
                         localStorage.setItem('fittimer_activePreset', p.id);
                         setHiitPreset(p.work, p.rest, p.rounds, p.warmup || 0); 
@@ -1230,17 +1187,15 @@
             addBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Novo'; container.appendChild(addBtn);
         }
 
-        // INIT SORTABLE JS
-        let tmSortable, intSortable;
         function initSortablePresets() {
             if (typeof Sortable === 'undefined') return;
             const tmContainer = document.getElementById('tm-presets');
             if (tmContainer) {
-                tmSortable = new Sortable(tmContainer, {
-                    animation: 200, delay: 200, delayOnTouchOnly: true, filter: ".non-draggable",
+                new Sortable(tmContainer, {
+                    animation: 200, delay: 250, delayOnTouchOnly: true, filter: ".non-draggable",
                     onMove: function(evt) { return evt.related.className.indexOf("non-draggable") === -1; },
                     onEnd: function (evt) {
-                        if (evt.oldIndex === evt.newIndex || evt.oldIndex >= tmPresets.length || evt.newIndex >= tmPresets.length) return;
+                        if (evt.oldIndex === evt.newIndex) return;
                         const item = tmPresets.splice(evt.oldIndex, 1)[0]; tmPresets.splice(evt.newIndex, 0, item);
                         localStorage.setItem(STORAGE_TM_PRESETS_KEY, JSON.stringify(tmPresets));
                     }
@@ -1248,11 +1203,11 @@
             }
             const intContainer = document.getElementById('int-presets');
             if (intContainer) {
-                intSortable = new Sortable(intContainer, {
-                    animation: 200, delay: 200, delayOnTouchOnly: true, filter: ".non-draggable",
+                new Sortable(intContainer, {
+                    animation: 200, delay: 250, delayOnTouchOnly: true, filter: ".non-draggable",
                     onMove: function(evt) { return evt.related.className.indexOf("non-draggable") === -1; },
                     onEnd: function (evt) {
-                        if (evt.oldIndex === evt.newIndex || evt.oldIndex >= myPresets.length || evt.newIndex >= myPresets.length) return;
+                        if (evt.oldIndex === evt.newIndex) return;
                         const item = myPresets.splice(evt.oldIndex, 1)[0]; myPresets.splice(evt.newIndex, 0, item);
                         localStorage.setItem(STORAGE_PRESETS_KEY, JSON.stringify(myPresets));
                     }
@@ -1320,7 +1275,6 @@
             }; reader.readAsText(file);
         }
 
-        // MODAIS DE PRESET
         function openOptionsModal(id, name, context = 'hiit') { 
             if (intIsRunning || tmIsRunning) return; selectedOptionsPresetId = id; presetContext = context;
             document.getElementById('options-title').innerText = name; 
@@ -1392,7 +1346,7 @@
 
         function intStartPause() {
             if (intIsRunning) {
-                clearInterval(intInterval); intIsRunning = false; releaseWakeLock();
+                clearInterval(intInterval); intIsRunning = false; releaseWakeLock(); setFocusMode(false);
                 intBtnStartPause.classList.replace('bg-amber-600', 'bg-theme'); intIconStartPause.classList.replace('fa-pause', 'fa-play');
             } else {
                 if (intState === 'idle') {
@@ -1407,7 +1361,7 @@
                     
                     saveLastConfigOffline(); intSetup.classList.add('hidden'); intPresetsWrapper.classList.add('hidden'); updateIntBgColor();
                 }
-                intUpdateUI(); intInterval = setInterval(intTick, 1000); intIsRunning = true; requestWakeLock();
+                intUpdateUI(); intInterval = setInterval(intTick, 1000); intIsRunning = true; requestWakeLock(); setFocusMode(true);
                 intBtnStartPause.classList.replace('bg-theme', 'bg-amber-600'); intIconStartPause.classList.replace('fa-play', 'fa-pause');
             }
         }
@@ -1448,7 +1402,7 @@
         }
 
         function intFinish() {
-            clearInterval(intInterval); intIsRunning = false; intState = 'idle'; releaseWakeLock(); playBeep('end');
+            clearInterval(intInterval); intIsRunning = false; intState = 'idle'; releaseWakeLock(); playBeep('end'); setFocusMode(false);
             const totalSecs = (intWorkSec + intRestSec) * intTotalRounds + intWarmupSec;
             let treinoName = "Treino Customizado"; if(currentActivePresetId) { const p = myPresets.find(x => x.id === currentActivePresetId); if(p) treinoName = p.name; }
             saveToHistory(treinoName, totalSecs / 60);
@@ -1463,7 +1417,7 @@
             setTimeout(() => { intResetUI(); switchTab('history'); }, 4000);
         }
 
-        function intReset() { clearInterval(intInterval); intIsRunning = false; intState = 'idle'; releaseWakeLock(); intResetUI(); updateIntBgColor(); }
+        function intReset() { clearInterval(intInterval); intIsRunning = false; intState = 'idle'; releaseWakeLock(); intResetUI(); updateIntBgColor(); setFocusMode(false); }
         function intResetUI() {
             intSetup.classList.remove('hidden'); intPresetsWrapper.classList.remove('hidden');
             intBtnStartPause.classList.replace('bg-amber-600', 'bg-theme'); intIconStartPause.classList.replace('fa-pause', 'fa-play');
@@ -1477,7 +1431,7 @@
         if (lastTmSec) { document.getElementById('tm-input-min').value = Math.floor(parseInt(lastTmSec) / 60).toString().padStart(2, '0'); document.getElementById('tm-input-sec').value = (parseInt(lastTmSec) % 60).toString().padStart(2, '0'); }
         
         renderPresets(); renderTmPresets(); renderHistory(); 
-        setTimeout(initSortablePresets, 1000); // Inicializa o drag and drop logo após renderizar
+        setTimeout(initSortablePresets, 1000);
         switchTab('stopwatch');
         checkSharedLinkOnLoad();
     </script>
