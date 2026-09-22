@@ -102,13 +102,20 @@
         <i class="fa-solid fa-lock text-6xl text-theme mb-6"></i>
         <h2 class="text-white text-2xl font-black mb-8 tracking-wide">Tela Bloqueada</h2>
         
-        <!-- Botão interativo de pressionar -->
-        <button id="btn-unlock" class="relative overflow-hidden bg-slate-800 border-2 border-theme rounded-2xl px-10 py-5 text-white font-bold text-lg shadow-2xl outline-none select-none" style="touch-action: none; -webkit-touch-callout: none;">
-            <!-- Barra de progresso invisível que cresce -->
-            <div id="unlock-progress" class="absolute left-0 top-0 bottom-0 bg-theme/40 w-0 transition-all duration-[800ms] ease-linear"></div>
-            <span class="relative z-10 flex items-center gap-3"><i class="fa-solid fa-fingerprint text-2xl"></i> Segure para Desbloquear</span>
-        </button>
-        <p class="text-slate-400 mt-6 text-sm">Previne toques acidentais no bolso.</p>
+        <!-- Botão de Slider para Desbloquear -->
+        <div id="unlock-slider-container" class="relative w-72 h-16 bg-slate-900 border-2 border-slate-700 rounded-full flex items-center overflow-hidden shadow-2xl select-none">
+            <!-- Barra de fundo que preenche conforme arrasta -->
+            <div id="unlock-track-fill" class="absolute left-0 top-0 bottom-0 bg-theme/20 rounded-full w-0"></div>
+            <!-- Texto indicativo -->
+            <div class="absolute w-full text-center text-slate-400 font-bold text-sm tracking-widest uppercase pointer-events-none select-none">
+                Deslize para destravar
+            </div>
+            <!-- Thumb (Botão que o usuário puxa) -->
+            <div id="unlock-thumb" class="absolute left-1 w-14 h-14 bg-theme border-2 border-slate-900 rounded-full flex items-center justify-center text-white shadow-[0_0_15px_rgba(16,185,129,0.5)] z-10 cursor-grab" style="touch-action: none;">
+                <i class="fa-solid fa-chevron-right text-xl"></i>
+            </div>
+        </div>
+        <p class="text-slate-500 mt-8 text-xs font-semibold tracking-wider">PREVINE TOQUES ACIDENTAIS NO BOLSO</p>
     </div>
 
     <!-- Toast de Notificação Geral/Conquistas -->
@@ -557,39 +564,90 @@
             m.classList.add('opacity-0'); c.classList.add('scale-95'); setTimeout(() => m.classList.add('hidden'), 300);
         }
 
-        // ================= BLOQUEIO DE TELA =================
+        // ================= BLOQUEIO DE TELA (SLIDER) =================
         const lockOverlay = document.getElementById('screen-lock-overlay');
-        const btnUnlock = document.getElementById('btn-unlock');
-        const progUnlock = document.getElementById('unlock-progress');
-        let unlockTimeout;
+        const sliderContainer = document.getElementById('unlock-slider-container');
+        const thumb = document.getElementById('unlock-thumb');
+        const trackFill = document.getElementById('unlock-track-fill');
+        
+        let isDraggingSlider = false;
+        let sliderStartX = 0;
+        let sliderMaxX = 0;
 
         function lockScreen() {
             lockOverlay.classList.remove('hidden');
             setTimeout(() => lockOverlay.classList.remove('opacity-0'), 50);
+            resetUnlockSlider();
         }
 
-        function startUnlock(e) {
-            if (e.cancelable) e.preventDefault(); 
-            progUnlock.style.width = '100%';
-            unlockTimeout = setTimeout(() => {
-                lockOverlay.classList.add('opacity-0');
-                setTimeout(() => { lockOverlay.classList.add('hidden'); progUnlock.style.width = '0%'; }, 300);
+        function resetUnlockSlider() {
+            thumb.style.transition = 'left 0.3s ease-out';
+            trackFill.style.transition = 'width 0.3s ease-out';
+            thumb.style.left = '4px';
+            trackFill.style.width = '0px';
+        }
+
+        function onSliderStart(e) {
+            isDraggingSlider = true;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            // Salva a distância exata entre o toque e a borda esquerda do botão
+            sliderStartX = clientX - thumb.offsetLeft; 
+            // Largura máxima que o botão pode percorrer sem vazar o container
+            sliderMaxX = sliderContainer.offsetWidth - thumb.offsetWidth - 8;
+            
+            thumb.style.transition = 'none'; // Desliga transição para seguir o dedo instantaneamente
+            trackFill.style.transition = 'none';
+            thumb.classList.add('cursor-grabbing');
+        }
+
+        function onSliderMove(e) {
+            if (!isDraggingSlider) return;
+            if (e.cancelable) e.preventDefault(); // Impede a tela do fundo de arrastar junto
+            
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            let currentX = clientX - sliderStartX;
+
+            // Mantém o botão dentro dos limites visuais do trilho
+            if (currentX < 4) currentX = 4;
+            if (currentX > sliderMaxX) currentX = sliderMaxX;
+
+            thumb.style.left = currentX + 'px';
+            trackFill.style.width = (currentX + (thumb.offsetWidth / 2)) + 'px';
+        }
+
+        function onSliderEnd(e) {
+            if (!isDraggingSlider) return;
+            isDraggingSlider = false;
+            thumb.classList.remove('cursor-grabbing');
+
+            const currentX = parseInt(thumb.style.left || 4, 10);
+            
+            // Se o usuário puxou até 85% do trilho, nós completamos a ação (Sucesso)
+            if (currentX >= sliderMaxX * 0.85) {
+                thumb.style.left = sliderMaxX + 'px';
+                trackFill.style.width = '100%';
+                
+                setTimeout(() => {
+                    lockOverlay.classList.add('opacity-0');
+                    setTimeout(() => { lockOverlay.classList.add('hidden'); resetUnlockSlider(); }, 300);
+                }, 150);
+                
                 if(navigator.vibrate) navigator.vibrate(150);
-            }, 800); 
+            } else {
+                // Se soltou antes da hora, o botão desliza de volta para o começo (Mola)
+                resetUnlockSlider();
+            }
         }
 
-        function cancelUnlock(e) {
-            if (e && e.cancelable) e.preventDefault();
-            clearTimeout(unlockTimeout);
-            progUnlock.style.width = '0%';
-        }
-
-        btnUnlock.addEventListener('touchstart', startUnlock, {passive: false}); 
-        btnUnlock.addEventListener('touchend', cancelUnlock); 
-        btnUnlock.addEventListener('touchcancel', cancelUnlock); 
-        btnUnlock.addEventListener('mousedown', startUnlock); 
-        btnUnlock.addEventListener('mouseup', cancelUnlock); 
-        btnUnlock.addEventListener('mouseleave', cancelUnlock);
+        // Suporte para Touch (Celulares)
+        thumb.addEventListener('touchstart', onSliderStart, {passive: false});
+        document.addEventListener('touchmove', onSliderMove, {passive: false});
+        document.addEventListener('touchend', onSliderEnd);
+        
+        // Suporte para Mouse (Desktop/Notebooks)
+        thumb.addEventListener('mousedown', onSliderStart);
+        document.addEventListener('mousemove', onSliderMove);
+        document.addEventListener('mouseup', onSliderEnd);
 
         // ================= ÁUDIO E WAKE LOCK =================
         async function requestWakeLock() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {} }
