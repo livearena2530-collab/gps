@@ -183,7 +183,7 @@
                 <!-- Presets do Timer -->
                 <div id="tm-presets-wrapper" class="w-full mb-3 transition-opacity duration-300">
                     <div class="flex items-center justify-between px-2 mb-1">
-                        <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Favoritos (Segure para mover)</span>
+                        <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Favoritos (Arraste p/ mover • 2 toques p/ opções)</span>
                     </div>
                     <div id="tm-presets" class="flex overflow-x-auto no-scrollbar gap-2 pb-1 items-center px-1 snap-x">
                         <!-- Gerados via JS -->
@@ -241,7 +241,7 @@
                 
                 <div id="int-presets-wrapper" class="w-full mb-3">
                     <div class="flex items-center justify-between px-2 mb-1">
-                        <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Favoritos (Segure para mover)</span>
+                        <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Favoritos (Arraste p/ mover • 2 toques p/ opções)</span>
                     </div>
                     <div id="int-presets" class="flex overflow-x-auto no-scrollbar gap-2 pb-1 items-center px-1 snap-x cursor-grab active:cursor-grabbing">
                         <!-- Gerados via JS -->
@@ -944,18 +944,19 @@
                     : 'h-10 px-4 bg-slate-800 text-slate-300 text-sm font-bold rounded-lg border border-slate-700 active:bg-slate-700 transition-all shrink-0 snap-center flex items-center justify-center preset-item';
                 btn.innerText = p.name;
                 btn.dataset.id = p.id;
-                
-                const startPress = () => { isLongPress = false; pressTimer = setTimeout(() => { isLongPress = true; if(navigator.vibrate) navigator.vibrate(50); openOptionsModal(p.id, p.name, 'timer'); }, 600); };
-                const cancelPress = () => clearTimeout(pressTimer);
-
-                btn.addEventListener('touchstart', startPress, {passive: true}); btn.addEventListener('touchend', cancelPress); btn.addEventListener('touchmove', cancelPress);
-                btn.addEventListener('mousedown', startPress); btn.addEventListener('mouseup', cancelPress); btn.addEventListener('mouseleave', cancelPress);
 
                 btn.onclick = (e) => { 
                     e.preventDefault(); 
-                    if (!isLongPress) { 
-                        currentActiveTmPresetId = p.id; localStorage.setItem('fittimer_activeTmPreset', p.id);
-                        setTmPreset(p.sec); renderTmPresets(); 
+                    if (isActive) { 
+                        // Se já está ativo (Verde), o segundo clique abre as Opções
+                        if(navigator.vibrate) navigator.vibrate(50);
+                        openOptionsModal(p.id, p.name, 'timer');
+                    } else {
+                        // Se não está ativo, seleciona ele
+                        currentActiveTmPresetId = p.id; 
+                        localStorage.setItem('fittimer_activeTmPreset', p.id);
+                        setTmPreset(p.sec); 
+                        renderTmPresets(); 
                     } 
                 };
                 container.appendChild(btn);
@@ -1038,18 +1039,19 @@
                     : 'h-10 px-4 bg-slate-800 text-slate-300 text-sm font-bold rounded-lg border border-slate-700 active:bg-slate-700 transition-all shrink-0 snap-center flex items-center justify-center preset-item';
                 btn.innerText = p.name;
                 btn.dataset.id = p.id;
-                
-                const startPress = () => { isLongPress = false; pressTimer = setTimeout(() => { isLongPress = true; if(navigator.vibrate) navigator.vibrate(50); openOptionsModal(p.id, p.name, 'hiit'); }, 600); };
-                const cancelPress = () => clearTimeout(pressTimer);
-
-                btn.addEventListener('touchstart', startPress, {passive: true}); btn.addEventListener('touchend', cancelPress); btn.addEventListener('touchmove', cancelPress);
-                btn.addEventListener('mousedown', startPress); btn.addEventListener('mouseup', cancelPress); btn.addEventListener('mouseleave', cancelPress);
 
                 btn.onclick = (e) => { 
                     e.preventDefault(); 
-                    if (!isLongPress) { 
-                        currentActivePresetId = p.id; localStorage.setItem('fittimer_activePreset', p.id);
-                        setHiitPreset(p.work, p.rest, p.rounds, p.warmup || 0); renderPresets(); 
+                    if (isActive) { 
+                        // Se já está ativo (Verde), o segundo clique abre as Opções
+                        if(navigator.vibrate) navigator.vibrate(50);
+                        openOptionsModal(p.id, p.name, 'hiit');
+                    } else {
+                        // Se não está ativo, seleciona ele
+                        currentActivePresetId = p.id; 
+                        localStorage.setItem('fittimer_activePreset', p.id);
+                        setHiitPreset(p.work, p.rest, p.rounds, p.warmup || 0); 
+                        renderPresets(); 
                     } 
                 };
                 container.appendChild(btn);
