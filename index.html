@@ -1346,10 +1346,16 @@
 
         function intStartPause() {
             if (intIsRunning) {
+                // PAUSOU O TREINO
                 clearInterval(intInterval); intIsRunning = false; releaseWakeLock(); setFocusMode(false);
                 intBtnStartPause.classList.replace('bg-amber-600', 'bg-theme'); intIconStartPause.classList.replace('fa-pause', 'fa-play');
+                
+                // MÁGICA AQUI: Mostra o menu de configuração novamente para permitir edições
+                intSetup.classList.remove('hidden');
             } else {
+                // DEU PLAY (Iniciando ou Retomando)
                 if (intState === 'idle') {
+                    // INICIANDO PELA PRIMEIRA VEZ
                     intWorkSec = (parseInt(document.getElementById('int-work-m').value) || 0) * 60 + (parseInt(document.getElementById('int-work-s').value) || 0);
                     intRestSec = (parseInt(document.getElementById('int-rest-m').value) || 0) * 60 + (parseInt(document.getElementById('int-rest-s').value) || 0);
                     intTotalRounds = parseInt(document.getElementById('int-input-rounds').value) || 1; 
@@ -1359,8 +1365,19 @@
                     if(intWarmupSec > 0) { intState = 'warmup'; intTimeRemaining = intWarmupSec; intPhaseTotalTime = intWarmupSec; speakVoiceCoach("Aquecimento!"); }
                     else { intState = 'prep'; intTimeRemaining = 5; intPhaseTotalTime = 5; speakVoiceCoach("Prepare-se!"); }
                     
-                    saveLastConfigOffline(); intSetup.classList.add('hidden'); intPresetsWrapper.classList.add('hidden'); updateIntBgColor();
+                    updateIntBgColor();
+                } else {
+                    // RETOMANDO DE UM PAUSE
+                    // Lê as configurações de novo para absorver qualquer mudança que você fez enquanto estava pausado
+                    intWorkSec = (parseInt(document.getElementById('int-work-m').value) || 0) * 60 + (parseInt(document.getElementById('int-work-s').value) || 0);
+                    intRestSec = (parseInt(document.getElementById('int-rest-m').value) || 0) * 60 + (parseInt(document.getElementById('int-rest-s').value) || 0);
+                    intTotalRounds = parseInt(document.getElementById('int-input-rounds').value) || 1; 
                 }
+                
+                saveLastConfigOffline(); 
+                intSetup.classList.add('hidden'); 
+                intPresetsWrapper.classList.add('hidden');
+                
                 intUpdateUI(); intInterval = setInterval(intTick, 1000); intIsRunning = true; requestWakeLock(); setFocusMode(true);
                 intBtnStartPause.classList.replace('bg-theme', 'bg-amber-600'); intIconStartPause.classList.replace('fa-play', 'fa-pause');
             }
