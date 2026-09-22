@@ -129,6 +129,10 @@
             <i class="fa-solid fa-bolt"></i> FitTimer
         </h1>
         <div class="flex gap-4">
+            <!-- Novo Botão PiP (Flutuante) -->
+            <button id="btn-pip" onclick="togglePiP()" class="text-slate-300 hover:text-white text-xl transition-colors p-2 hidden">
+                <i class="fa-solid fa-window-restore"></i>
+            </button>
             <button id="btn-sound" onclick="toggleSound()" class="text-slate-300 hover:text-white text-xl transition-colors p-2">
                 <i id="icon-sound" class="fa-solid fa-volume-high"></i>
             </button>
@@ -489,12 +493,12 @@
         </button>
     </nav>
 
+    <!-- Elementos Ocultos para Picture-in-Picture -->
+    <canvas id="pip-canvas" width="400" height="400" class="hidden"></canvas>
+    <video id="pip-video" class="hidden" muted playsinline autoplay></video>
+
     <script>
-        // ================= PWA SETUP =================
-        const manifest = {
-            name: "FitTimer Pro", short_name: "FitTimer", display: "standalone",
-            background_color: "#0f172a", theme_color: "#0f172a",
-            icons: [{ src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%8F%B1%EF%B8%8F%3C/text%3E%3C/svg%3E", sizes: "192x192", type: "image/svg+xml" }]
+        // ================= PWA SETUP 100% OFFLINE REAL =================
         };
         const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
         document.getElementById('manifest-link').href = URL.createObjectURL(manifestBlob);
@@ -652,6 +656,92 @@
         // ================= ÁUDIO E WAKE LOCK =================
         async function requestWakeLock() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {} }
         function releaseWakeLock() { if (wakeLock !== null) wakeLock.release().then(() => wakeLock = null); }
+
+        // ================= PICTURE IN PICTURE (PiP) =================
+        const pipVideo = document.getElementById('pip-video');
+        const pipCanvas = document.getElementById('pip-canvas');
+        const pipCtx = pipCanvas.getContext('2d');
+        let pipInterval = null;
+
+        // Mostra o botão apenas se o navegador/celular tiver suporte ao PiP
+        if (document.pictureInPictureEnabled) {
+            document.getElementById('btn-pip').classList.remove('hidden');
+        }
+
+        async function togglePiP() {
+            if (document.pictureInPictureElement) {
+                await document.exitPictureInPicture();
+                return;
+            }
+
+            // Pinta o fundo inicial de escuro
+            pipCtx.fillStyle = '#0f172a';
+            pipCtx.fillRect(0, 0, 400, 400);
+            
+            try {
+                // Pega a transmissão (stream) do canvas a 30 quadros por segundo
+                const stream = pipCanvas.captureStream(30);
+                pipVideo.srcObject = stream;
+                
+                await pipVideo.play();
+                await pipVideo.requestPictureInPicture();
+                
+                // Começa a desenhar o timer na janelinha
+                pipInterval = setInterval(drawPiP, 100);
+            } catch (error) {
+                console.error(error);
+                showToast("PiP não suportado por este navegador.");
+            }
+        }
+
+        // Quando o usuário fecha a janelinha pelo X do sistema
+        pipVideo.addEventListener('leavepictureinpicture', () => {
+            clearInterval(pipInterval);
+        });
+
+        function drawPiP() {
+            // Fundo escuro
+            pipCtx.fillStyle = '#0f172a';
+            pipCtx.fillRect(0, 0, 400, 400);
+            
+            pipCtx.textAlign = "center";
+            pipCtx.textBaseline = "middle";
+
+            let timeText = "00:00";
+            let labelText = "FitTimer";
+            let color = "#ffffff";
+            
+            // Pega a cor principal do tema do usuário
+            const themeHex = getComputedStyle(document.documentElement).getPropertyValue('--theme-base').trim() || '#10b981';
+
+            // Define o que será desenhado na janela baseado na aba ativa
+            if (currentView === 'stopwatch') {
+                const date = new Date(swElapsedTime);
+                timeText = date.getUTCMinutes().toString().padStart(2, '0') + ':' + date.getUTCSeconds().toString().padStart(2, '0');
+                labelText = "CRONÔMETRO";
+                color = swIsRunning ? themeHex : "#ffffff";
+            } else if (currentView === 'timer') {
+                timeText = formatTimeSimple(tmTimeRemaining);
+                labelText = "TIMER";
+                color = tmIsRunning ? themeHex : "#ffffff";
+            } else if (currentView === 'interval') {
+                timeText = formatTimeSimple(intTimeRemaining);
+                if (intState === 'work') { labelText = "AÇÃO!"; color = themeHex; }
+                else if (intState === 'rest') { labelText = "DESCANSO"; color = "#ef4444"; } 
+                else if (intState === 'prep' || intState === 'warmup') { labelText = "PREPARA"; color = "#eab308"; } 
+                else { labelText = "HIIT"; }
+            }
+
+            // Desenha o Título (Ex: "AÇÃO!")
+            pipCtx.font = "bold 45px Arial";
+            pipCtx.fillStyle = "#94a3b8"; 
+            pipCtx.fillText(labelText, 200, 130);
+
+            // Desenha o Cronômetro
+            pipCtx.font = "bold 130px Arial";
+            pipCtx.fillStyle = color;
+            pipCtx.fillText(timeText, 200, 240);
+        }
 
         function toggleSound() {
             isSoundOn = !isSoundOn; const icon = document.getElementById('icon-sound');
